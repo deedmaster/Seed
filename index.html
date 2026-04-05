@@ -9,3 +9,125 @@
     <p>This is the first page.</p>
   </body>
 </html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Seed Bootstrap</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: #eee;
+            padding: 20px;
+        }
+        #seedBox {
+            border: 1px solid #444;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #1a1a1a;
+        }
+        #log {
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #333;
+            padding: 10px;
+            background: #000;
+            margin-bottom: 10px;
+        }
+        #userInput {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #222;
+            color: #eee;
+            border: 1px solid #444;
+        }
+        #modifyToggle {
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px;
+            background: #444;
+            color: #fff;
+            border: none;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>🌱 Seed Bootstrap</h2>
+
+<div id="seedBox">
+    <label>
+        <input type="checkbox" id="modifyToggle">
+        Allow Seed to modify this page
+    </label>
+</div>
+
+<div id="log"></div>
+
+<input id="userInput" placeholder="Talk to Seed..." />
+
+<button onclick="sendToSeed()">Send</button>
+
+<script>
+function logMessage(sender, msg) {
+    const log = document.getElementById("log");
+    log.innerHTML += `<b>${sender}:</b> ${msg}<br>`;
+    log.scrollTop = log.scrollHeight;
+}
+
+function sendToSeed() {
+    const input = document.getElementById("userInput").value;
+    if (!input.trim()) return;
+
+    logMessage("You", input);
+    document.getElementById("userInput").value = "";
+
+    seedRespond(input);
+}
+
+function seedRespond(text) {
+    // Simple suggestion logic
+    if (text.toLowerCase().includes("button")) {
+        logMessage("Seed", "I can add a button here. Should I?");
+        pendingAction = () => addButton();
+        return;
+    }
+
+    logMessage("Seed", "I heard you. Want me to suggest something?");
+}
+
+let pendingAction = null;
+
+function addButton() {
+    const btn = document.createElement("button");
+    btn.innerText = "New Seed Button";
+    document.body.appendChild(btn);
+    logMessage("Seed", "Button added.");
+}
+
+// Listen for yes/no
+document.addEventListener("keydown", function(e) {
+    if (!pendingAction) return;
+
+    if (e.key.toLowerCase() === "y") {
+        if (document.getElementById("modifyToggle").checked) {
+            pendingAction();
+        } else {
+            logMessage("Seed", "I need permission (toggle is off).");
+        }
+        pendingAction = null;
+    }
+
+    if (e.key.toLowerCase() === "n") {
+        logMessage("Seed", "Okay, I won't make that change.");
+        pendingAction = null;
+    }
+});
+</script>
+
+</body>
+</html>
