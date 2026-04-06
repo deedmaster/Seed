@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -131,8 +131,6 @@
       font-weight: 600;
     }
 
-    /* Command ring + prompt box */
-
     .seed-input-area {
       position: relative;
       display: grid;
@@ -211,6 +209,7 @@
       gap: 8px;
       position: relative;
       overflow: hidden;
+      min-height: 170px;
     }
 
     .prompt-input {
@@ -220,6 +219,8 @@
       outline: none;
       color: var(--text);
       font-size: 14px;
+      position: relative;
+      z-index: 2;
     }
 
     .prompt-input::placeholder {
@@ -254,52 +255,49 @@
       box-shadow: 0 0 8px rgba(56, 255, 136, 0.4);
     }
 
-    /* Neon avatar */
+    /* Neon avatar hologram */
 
     .neko-avatar {
       position: absolute;
-      left: 8px;
-      bottom: 4px;
-      width: 70px;
-      height: 80px;
-      pointer-events: none;
+      inset: 0;
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       justify-content: center;
+      pointer-events: none;
+      opacity: 0.4;
+      z-index: 1;
     }
 
     .neko-outline {
-      width: 52px;
-      height: 70px;
-      border-radius: 18px;
+      width: 90px;
+      height: 130px;
+      border-radius: 24px;
       border: 2px solid var(--accent);
-      box-shadow: 0 0 12px rgba(56, 255, 136, 0.8);
+      box-shadow: 0 0 18px rgba(56, 255, 136, 0.9);
       position: relative;
       animation: nekoIdle 3s ease-in-out infinite;
     }
 
     .neko-outline::before {
-      /* head */
       content: "";
       position: absolute;
-      width: 26px;
-      height: 22px;
-      border-radius: 12px;
+      width: 40px;
+      height: 32px;
+      border-radius: 16px;
       border: 2px solid currentColor;
-      top: -16px;
+      top: -26px;
       left: 50%;
       transform: translateX(-50%);
     }
 
     .neko-outline::after {
-      /* lab coat hint */
       content: "";
       position: absolute;
-      width: 32px;
-      height: 26px;
-      border-radius: 4px;
+      width: 52px;
+      height: 40px;
+      border-radius: 6px;
       border: 2px solid currentColor;
-      bottom: 4px;
+      bottom: 6px;
       left: 50%;
       transform: translateX(-50%);
     }
@@ -309,62 +307,63 @@
       position: absolute;
       width: 0;
       height: 0;
-      border-left: 8px solid transparent;
-      border-right: 8px solid transparent;
-      border-bottom: 12px solid currentColor;
-      top: -26px;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 16px solid currentColor;
+      top: -40px;
     }
 
     .neko-ear-left {
-      left: 8px;
+      left: 10px;
     }
 
     .neko-ear-right {
-      right: 8px;
+      right: 10px;
     }
 
     .neko-glasses {
       position: absolute;
-      width: 22px;
-      height: 8px;
+      width: 34px;
+      height: 10px;
       border-radius: 999px;
       border: 2px solid currentColor;
-      top: -10px;
+      top: -18px;
       left: 50%;
       transform: translateX(-50%);
-      box-shadow: 0 0 6px currentColor;
+      box-shadow: 0 0 8px currentColor;
     }
 
     .neko-state-ready .neko-outline {
       color: var(--accent);
       border-color: var(--accent);
-      box-shadow: 0 0 14px rgba(56, 255, 136, 0.9);
+      box-shadow: 0 0 18px rgba(56, 255, 136, 0.9);
     }
 
     .neko-state-thinking .neko-outline {
       color: var(--accent-warn);
       border-color: var(--accent-warn);
-      box-shadow: 0 0 14px rgba(255, 179, 71, 0.9);
+      box-shadow: 0 0 18px rgba(255, 179, 71, 0.9);
       animation: nekoThinking 1.4s ease-in-out infinite;
     }
 
     .neko-state-error .neko-outline {
       color: var(--accent-error);
       border-color: var(--accent-error);
-      box-shadow: 0 0 16px rgba(255, 75, 75, 1);
+      box-shadow: 0 0 20px rgba(255, 75, 75, 1);
       animation: nekoError 0.6s ease-in-out infinite;
     }
 
     .neko-pointer {
-      position: absolute;
+      position: fixed;
       width: 26px;
       height: 26px;
       border-radius: 999px;
-      border: 2px dashed currentColor;
+      border: 2px dashed var(--accent);
       opacity: 0;
       transform: scale(0.7);
       transition: opacity 0.2s ease-out, transform 0.2s ease-out, top 0.2s ease-out, left 0.2s ease-out;
       pointer-events: none;
+      z-index: 40;
     }
 
     .neko-pointer.active {
@@ -374,21 +373,19 @@
 
     @keyframes nekoIdle {
       0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-2px); }
+      50% { transform: translateY(-3px); }
     }
 
     @keyframes nekoThinking {
       0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-4px); }
+      50% { transform: translateY(-6px); }
     }
 
     @keyframes nekoError {
       0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-2px); }
-      75% { transform: translateX(2px); }
+      25% { transform: translateX(-3px); }
+      75% { transform: translateX(3px); }
     }
-
-    /* Submenu */
 
     .submenu-row {
       display: flex;
@@ -424,8 +421,6 @@
     .submenu-container.hidden {
       display: none;
     }
-
-    /* Mic button */
 
     .mic-toggle {
       position: fixed;
@@ -505,8 +500,8 @@
       .seed-shell {
         padding: 12px;
       }
-      .neko-avatar {
-        display: none; /* optional: hide avatar on very small screens */
+      .prompt-box {
+        min-height: 180px;
       }
     }
   </style>
@@ -523,34 +518,23 @@
     <div class="seed-main">
       <div class="seed-console" id="console">
         <div class="seed-console-entry system">
-          <strong>[system]</strong> Neko OS brain initialized. Avatar is the interface. Text + voice both feed the same intent engine.
+          <strong>[system]</strong> Seed OS brain initialized. Neko is the interface. Text + voice both feed the same intent engine.
         </div>
         <div class="seed-console-entry system">
-          <strong>[hint]</strong> Type into the prompt and press Enter, or tap the mic to speak. Use the 4 main buttons around the prompt to access Master Control, Sandbox, System Options, and Extra.
+          <strong>[hint]</strong> Describe what you want Seed to do. I’ll propose the change, you approve, then I apply it inside this running system.
         </div>
       </div>
 
       <div class="seed-input-area">
-        <!-- Command ring -->
         <div class="command-ring">
-          <!-- Top button -->
           <button class="command-button primary" data-main="master" id="btnMaster">Master Control</button>
-
           <div class="command-ring-spacer"></div>
-
-          <!-- Sandbox button (right) -->
           <button class="command-button" data-main="sandbox" id="btnSandbox">Sandbox</button>
-
-          <!-- Left button -->
           <button class="command-button" data-main="system" id="btnSystem">System Options</button>
-
           <div class="command-ring-spacer"></div>
-
-          <!-- Bottom button -->
           <button class="command-button" data-main="extra" id="btnExtra">Extra Slot</button>
         </div>
 
-        <!-- Submenu + back -->
         <div class="submenu-container hidden" id="submenuContainer">
           <div class="submenu-row" id="submenuButtons"></div>
           <div class="submenu-row">
@@ -558,24 +542,21 @@
           </div>
         </div>
 
-        <!-- Prompt row -->
         <div class="prompt-row">
           <div class="prompt-box" id="promptBox">
-            <!-- Neon avatar -->
             <div class="neko-avatar neko-state-ready" id="nekoAvatar">
               <div class="neko-outline">
                 <div class="neko-ear-left"></div>
                 <div class="neko-ear-right"></div>
                 <div class="neko-glasses"></div>
               </div>
-              <div class="neko-pointer" id="nekoPointer"></div>
             </div>
 
             <input
               id="promptInput"
               class="prompt-input"
               type="text"
-              placeholder="Describe what you want Seed to do. Neko will interpret and ask for confirmation."
+              placeholder="Tell Seed what to change. Example: “add a dev tools button”, “switch theme”, “make avatar bigger”."
             />
           </div>
           <button class="send-button" id="btnSend">
@@ -586,7 +567,8 @@
     </div>
   </div>
 
-  <!-- Mic toggle -->
+  <div class="neko-pointer" id="nekoPointer"></div>
+
   <button class="mic-toggle off" id="micToggle" aria-label="Toggle voice input">
     <div class="mic-toggle-icon"></div>
   </button>
@@ -604,6 +586,7 @@
     const submenuContainer = document.getElementById("submenuContainer");
     const submenuButtons = document.getElementById("submenuButtons");
     const btnBack = document.getElementById("btnBack");
+    const promptBox = document.getElementById("promptBox");
 
     const mainButtons = {
       master: document.getElementById("btnMaster"),
@@ -612,13 +595,22 @@
       extra: document.getElementById("btnExtra")
     };
 
-    // Simple state
+    // Seed brain state
+    const SeedBrain = {
+      modules: {},
+      config: {
+        theme: "dark",
+        avatarSize: "large",
+        devToolsEnabled: false
+      },
+      lastProposal: null
+    };
+
     let currentMainPanel = null;
     let listening = false;
     let recognition = null;
 
-    // --- Utility: console logging ---
-
+    // Console logging
     function logEntry(type, text) {
       const div = document.createElement("div");
       div.classList.add("seed-console-entry");
@@ -630,8 +622,7 @@
       consoleEl.scrollTop = consoleEl.scrollHeight;
     }
 
-    // --- Avatar state + status ---
-
+    // Avatar + status
     function setNekoState(state) {
       nekoAvatar.classList.remove("neko-state-ready", "neko-state-thinking", "neko-state-error");
       statusDot.classList.remove("thinking", "error");
@@ -663,12 +654,13 @@
       }, 1200);
     }
 
-    // --- Command ring behavior ---
-
+    // Command ring
     function showMainButtons() {
       Object.values(mainButtons).forEach(btn => {
         btn.classList.remove("hidden");
+        btn.classList.remove("primary");
       });
+      mainButtons.master.classList.add("primary");
       submenuContainer.classList.add("hidden");
       currentMainPanel = null;
     }
@@ -695,25 +687,23 @@
 
       if (panel === "master") {
         items = [
-          { id: "mc-overview", label: "System Overview", desc: "Summarize current modules and status." },
-          { id: "mc-build-module", label: "Build Module", desc: "Propose a new module based on your description." },
-          { id: "mc-apply-change", label: "Apply Approved Change", desc: "Commit a previously confirmed change." }
+          { id: "mc-overview", label: "System Overview", desc: "Summarize current modules and config." },
+          { id: "mc-list-modules", label: "List Modules", desc: "Show loaded modules." },
+          { id: "mc-reset-proposal", label: "Clear Last Proposal", desc: "Forget any pending change." }
         ];
       } else if (panel === "sandbox") {
         items = [
-          { id: "sb-run-check", label: "Run Sandbox Check", desc: "Test changes in isolation before applying." },
-          { id: "sb-preview-layout", label: "Preview Layout Changes", desc: "Show layout impact without committing." },
-          { id: "sb-clear", label: "Clear Sandbox", desc: "Reset sandbox environment." }
+          { id: "sb-test-theme", label: "Test Theme Flip", desc: "Preview a theme change without committing." },
+          { id: "sb-test-avatar", label: "Test Avatar Size", desc: "Preview a different avatar size." }
         ];
       } else if (panel === "system") {
         items = [
-          { id: "sys-status", label: "System Status", desc: "Report health, issues, and suggestions." },
-          { id: "sys-config", label: "Config Summary", desc: "Explain current configuration." },
-          { id: "sys-issues", label: "Scan for Issues", desc: "Look for blockers before continuing." }
+          { id: "sys-status", label: "System Status", desc: "Report health, config, and last proposal." },
+          { id: "sys-config", label: "Config Summary", desc: "Explain current configuration." }
         ];
       } else if (panel === "extra") {
         items = [
-          { id: "ex-placeholder", label: "Reserved Slot", desc: "Neko can define this later." }
+          { id: "ex-devtools", label: "Toggle Dev Tools Module", desc: "Enable or disable the Dev Tools button." }
         ];
       }
 
@@ -743,38 +733,201 @@
       });
     });
 
-    // --- Submenu actions (stubs for OS brain) ---
+    // Seed Brain: proposals + apply
+
+    function proposeChange(label, description, applyFn) {
+      SeedBrain.lastProposal = { label, description, applyFn };
+      logEntry("neko", `Proposed change: <strong>${label}</strong>. ${description}`);
+      logEntry("neko", "If this looks right, say “yes”, “do it”, or “go ahead” and I’ll apply it inside Seed.");
+    }
+
+    function applyLastProposal() {
+      if (!SeedBrain.lastProposal) {
+        logEntry("neko", "There is no pending change to apply. Ask me to change something first.");
+        return;
+      }
+      const { label, applyFn } = SeedBrain.lastProposal;
+      try {
+        setNekoState("thinking");
+        applyFn();
+        logEntry("neko", `Applied: <strong>${label}</strong>. This only affects the running Seed session.`);
+        SeedBrain.lastProposal = null;
+        setTimeout(() => setNekoState("ready"), 400);
+      } catch (e) {
+        logEntry("system", `Error applying change: ${e.message}`);
+        setNekoState("error");
+        setTimeout(() => setNekoState("ready"), 800);
+      }
+    }
+
+    // Example internal changes
+
+    function flipTheme() {
+      if (SeedBrain.config.theme === "dark") {
+        document.documentElement.style.setProperty("--bg", "#f5f7ff");
+        document.documentElement.style.setProperty("--panel", "#ffffff");
+        document.documentElement.style.setProperty("--text", "#020308");
+        document.documentElement.style.setProperty("--muted", "#4b5565");
+        SeedBrain.config.theme = "light";
+      } else {
+        document.documentElement.style.setProperty("--bg", "#05060a");
+        document.documentElement.style.setProperty("--panel", "#0b0f18");
+        document.documentElement.style.setProperty("--text", "#f5f7ff");
+        document.documentElement.style.setProperty("--muted", "#8a92a8");
+        SeedBrain.config.theme = "dark";
+      }
+    }
+
+    function setAvatarSize(size) {
+      const outline = nekoAvatar.querySelector(".neko-outline");
+      if (!outline) return;
+      if (size === "large") {
+        outline.style.width = "90px";
+        outline.style.height = "130px";
+        SeedBrain.config.avatarSize = "large";
+      } else if (size === "medium") {
+        outline.style.width = "70px";
+        outline.style.height = "100px";
+        SeedBrain.config.avatarSize = "medium";
+      } else {
+        outline.style.width = "50px";
+        outline.style.height = "80px";
+        SeedBrain.config.avatarSize = "small";
+      }
+    }
+
+    function toggleDevToolsModule() {
+      SeedBrain.config.devToolsEnabled = !SeedBrain.config.devToolsEnabled;
+      const existing = document.getElementById("btnDevTools");
+      if (SeedBrain.config.devToolsEnabled) {
+        if (!existing) {
+          const btn = document.createElement("button");
+          btn.id = "btnDevTools";
+          btn.className = "command-button";
+          btn.textContent = "Dev Tools";
+          btn.addEventListener("click", () => {
+            logEntry("neko", "Dev Tools panel is a placeholder. In a future build, this can host inspector tools.");
+          });
+          // Attach near Extra
+          mainButtons.extra.insertAdjacentElement("afterend", btn);
+        }
+      } else {
+        if (existing) existing.remove();
+      }
+    }
+
+    // Submenu actions
 
     function handleSubmenuAction(item) {
       setNekoState("thinking");
-      logEntry("neko", `Proposed action: <strong>${item.label}</strong>. ${item.desc}`);
-      logEntry(
-        "neko",
-        "I will not apply this automatically. Type something like “yes”, “go ahead”, or “that’s fine” to confirm, or refine your request in the prompt."
-      );
-      pointNekoAtElement(
-        Array.from(submenuButtons.children).find(btn => btn.dataset.actionId === item.id)
-      );
-      setTimeout(() => setNekoState("ready"), 600);
+
+      if (item.id === "mc-overview") {
+        logEntry("neko", `Modules loaded: ${Object.keys(SeedBrain.modules).length || "none yet"}.`);
+        logEntry("neko", `Theme: ${SeedBrain.config.theme}. Avatar size: ${SeedBrain.config.avatarSize}. DevTools: ${SeedBrain.config.devToolsEnabled ? "on" : "off"}.`);
+        setNekoState("ready");
+        return;
+      }
+
+      if (item.id === "mc-list-modules") {
+        const keys = Object.keys(SeedBrain.modules);
+        if (!keys.length) {
+          logEntry("neko", "No named modules registered yet. I can still change layout and config directly.");
+        } else {
+          logEntry("neko", "Loaded modules: " + keys.join(", "));
+        }
+        setNekoState("ready");
+        return;
+      }
+
+      if (item.id === "mc-reset-proposal") {
+        SeedBrain.lastProposal = null;
+        logEntry("neko", "Cleared the last pending change. You can ask for a new one.");
+        setNekoState("ready");
+        return;
+      }
+
+      if (item.id === "sb-test-theme") {
+        logEntry("neko", "Sandbox: previewing a theme flip. This is just a visual test; you can ask me to commit it after.");
+        flipTheme();
+        setTimeout(() => setNekoState("ready"), 400);
+        return;
+      }
+
+      if (item.id === "sb-test-avatar") {
+        logEntry("neko", "Sandbox: previewing a different avatar size.");
+        const next = SeedBrain.config.avatarSize === "large" ? "medium" : "large";
+        setAvatarSize(next);
+        setTimeout(() => setNekoState("ready"), 400);
+        return;
+      }
+
+      if (item.id === "sys-status") {
+        logEntry("neko", `Status: theme=${SeedBrain.config.theme}, avatarSize=${SeedBrain.config.avatarSize}, devTools=${SeedBrain.config.devToolsEnabled ? "on" : "off"}.`);
+        if (SeedBrain.lastProposal) {
+          logEntry("neko", `Pending proposal: <strong>${SeedBrain.lastProposal.label}</strong>.`);
+        } else {
+          logEntry("neko", "No pending proposals.");
+        }
+        setNekoState("ready");
+        return;
+      }
+
+      if (item.id === "sys-config") {
+        logEntry("neko", "Config summary: this Seed session can change theme, avatar size, and UI controls safely in memory.");
+        setNekoState("ready");
+        return;
+      }
+
+      if (item.id === "ex-devtools") {
+        proposeChange(
+          "Toggle Dev Tools module",
+          "This will add or remove a Dev Tools button in the command ring. It’s a safe UI-only change.",
+          () => toggleDevToolsModule()
+        );
+        setNekoState("ready");
+        return;
+      }
+
+      setNekoState("ready");
     }
 
-    // --- Intent engine (very simple stub) ---
+    // Intent engine
 
     function interpretIntent(text) {
       const lower = text.toLowerCase().trim();
       if (!lower) return { type: "empty" };
 
-      // Very simple patterns; you can expand these later.
       if (lower.includes("sandbox")) return { type: "openPanel", panel: "sandbox" };
       if (lower.includes("master")) return { type: "openPanel", panel: "master" };
       if (lower.includes("system")) return { type: "openPanel", panel: "system" };
       if (lower.includes("extra")) return { type: "openPanel", panel: "extra" };
 
-      if (["yes", "go ahead", "that's fine", "that’s fine", "do it", "confirm"].some(p => lower === p)) {
+      const confirms = ["yes", "go ahead", "that's fine", "that’s fine", "do it", "confirm", "ok", "okay", "apply"];
+      if (confirms.includes(lower)) {
         return { type: "confirm" };
       }
 
-      if (lower.startsWith("build") || lower.startsWith("create")) {
+      if (lower.includes("theme")) {
+        return { type: "changeTheme" };
+      }
+
+      if (lower.includes("avatar") && (lower.includes("bigger") || lower.includes("larger"))) {
+        return { type: "avatarSize", size: "large" };
+      }
+
+      if (lower.includes("avatar") && (lower.includes("smaller") || lower.includes("tiny"))) {
+        return { type: "avatarSize", size: "small" };
+      }
+
+      if (lower.includes("dev tools") || lower.includes("devtools")) {
+        return { type: "toggleDevTools" };
+      }
+
+      if (lower.includes("button") && lower.includes("dev")) {
+        return { type: "toggleDevTools" };
+      }
+
+      if (lower.startsWith("build") || lower.startsWith("create") || lower.startsWith("add")) {
         return { type: "buildRequest", text };
       }
 
@@ -800,9 +953,37 @@
       }
 
       if (intent.type === "confirm") {
-        logEntry(
-          "neko",
-          "Confirmation detected. In a full build, I would now apply the last proposed change to the OS. For now, this is a safe placeholder."
+        logEntry("neko", "Confirmation detected. I’ll apply the last proposed change inside this Seed session.");
+        applyLastProposal();
+        return;
+      }
+
+      if (intent.type === "changeTheme") {
+        proposeChange(
+          "Flip theme",
+          "Switch between dark and light theme for this Seed session.",
+          () => flipTheme()
+        );
+        setNekoState("ready");
+        return;
+      }
+
+      if (intent.type === "avatarSize") {
+        const label = intent.size === "large" ? "Make avatar larger" : "Make avatar smaller";
+        proposeChange(
+          label,
+          "Adjust the avatar hologram size inside the prompt box.",
+          () => setAvatarSize(intent.size)
+        );
+        setNekoState("ready");
+        return;
+      }
+
+      if (intent.type === "toggleDevTools") {
+        proposeChange(
+          "Toggle Dev Tools button",
+          "Add or remove a Dev Tools button in the command ring.",
+          () => toggleDevToolsModule()
         );
         setNekoState("ready");
         return;
@@ -811,11 +992,14 @@
       if (intent.type === "buildRequest") {
         logEntry(
           "neko",
-          "Interpreted as a build request. I can propose how to structure this as a module, then wait for your approval."
+          "Interpreted as a build request. In this version, I can change layout, theme, avatar, and controls. For deeper modules, I’ll propose structures, not write files."
         );
-        logEntry(
-          "neko",
-          "Example: “I recommend a new module with clear inputs, outputs, and a sandbox test. Confirm to generate a draft.”"
+        proposeChange(
+          "Record build idea",
+          "Store this request as a design note in the console so you can act on it later.",
+          () => {
+            logEntry("system", `Design note recorded: “${intent.text}”`);
+          }
         );
         setNekoState("ready");
         return;
@@ -824,15 +1008,14 @@
       if (intent.type === "freeform") {
         logEntry(
           "neko",
-          "Freeform request received. I’ll treat this as guidance for how you want Seed OS to behave and respond with suggestions, not automatic changes."
+          "Freeform request received. I’ll treat this as guidance for how you want Seed to behave and respond with suggestions, not automatic file changes."
         );
         setNekoState("ready");
         return;
       }
     }
 
-    // --- Text input handling ---
-
+    // Text input
     btnSend.addEventListener("click", () => {
       const text = promptInput.value.trim();
       if (!text) return;
@@ -850,8 +1033,7 @@
       }
     });
 
-    // --- Voice input (Web Speech API, if available) ---
-
+    // Voice input
     function initSpeech() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
@@ -871,7 +1053,6 @@
 
       rec.addEventListener("end", () => {
         if (listening) {
-          // Auto-stop after one phrase; no background listening.
           toggleListening(false);
         }
       });
@@ -907,17 +1088,13 @@
         logEntry("system", "Voice listening started. Speak a request, then I’ll stop automatically.");
         try {
           recognition.start();
-        } catch (e) {
-          // ignore double-start
-        }
+        } catch (e) {}
       } else {
         micToggle.classList.add("off");
         micToggle.classList.remove("listening");
         try {
           recognition.stop();
-        } catch (e) {
-          // ignore
-        }
+        } catch (e) {}
         setNekoState("ready");
         logEntry("system", "Voice listening stopped.");
       }
@@ -932,4 +1109,4 @@
     setNekoState("ready");
   </script>
 </body>
-              </html>
+</html>
