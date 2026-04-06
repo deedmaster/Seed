@@ -1,1112 +1,1151 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Seed OS – Neko Lab Interface</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seed + Neko Core</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
     :root {
       --bg: #05060a;
-      --panel: #0b0f18;
-      --accent: #38ff88;
-      --accent-warn: #ffb347;
-      --accent-error: #ff4b4b;
+      --bg-alt: #0b0f18;
+      --accent: #6cf0ff;
+      --accent-soft: rgba(108, 240, 255, 0.25);
+      --accent-strong: rgba(108, 240, 255, 0.9);
       --text: #f5f7ff;
-      --muted: #8a92a8;
-      --border: #1a2133;
-      --button-bg: #111624;
-      --button-hover: #171d2e;
-      --radius: 12px;
-      --transition-fast: 0.15s ease-out;
+      --text-soft: #a9b3d9;
+      --danger: #ff4f6a;
+      --ok: #6cff9a;
+      --warn: #ffd66c;
+      --border: #1a2235;
+      --avatar-glow: 0 0 18px rgba(108, 240, 255, 0.7);
+      --radius: 14px;
+      --transition: 180ms ease-out;
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
 
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
     body {
-      background: radial-gradient(circle at top, #151b2f 0, #05060a 55%);
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-main);
+      background: radial-gradient(circle at top, #101528 0, #05060a 55%);
       color: var(--text);
       min-height: 100vh;
       display: flex;
-      align-items: center;
+      align-items: stretch;
       justify-content: center;
-      padding: 16px;
     }
 
     .seed-shell {
       width: 100%;
-      max-width: 900px;
-      background: linear-gradient(145deg, #05060a, #090c14);
-      border-radius: 20px;
-      border: 1px solid #1b2235;
-      box-shadow: 0 0 40px rgba(0, 0, 0, 0.7);
-      padding: 16px;
+      max-width: 960px;
+      margin: 12px;
+      padding: 12px;
+      border-radius: 18px;
+      background: linear-gradient(145deg, rgba(10, 14, 26, 0.96), rgba(3, 5, 10, 0.98));
+      border: 1px solid rgba(108, 240, 255, 0.18);
+      box-shadow:
+        0 0 0 1px rgba(108, 240, 255, 0.08),
+        0 18px 45px rgba(0, 0, 0, 0.75);
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
     }
 
     .seed-header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 4px 4px 8px;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 6px 4px 4px;
     }
 
     .seed-title {
-      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .seed-logo {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      border: 1px solid rgba(108, 240, 255, 0.7);
+      box-shadow: 0 0 12px rgba(108, 240, 255, 0.7);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .seed-logo::before,
+    .seed-logo::after {
+      content: "";
+      position: absolute;
+      inset: 2px;
+      border-radius: inherit;
+      border: 1px solid rgba(108, 240, 255, 0.4);
+    }
+
+    .seed-logo::after {
+      inset: 6px 3px 3px 6px;
+      border-radius: 999px 999px 999px 999px;
+      border-color: transparent transparent rgba(108, 240, 255, 0.7) transparent;
+    }
+
+    .seed-title-text {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .seed-title-text span:first-child {
+      font-size: 13px;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: var(--accent-strong);
+    }
+
+    .seed-title-text span:last-child {
+      font-size: 11px;
+      color: var(--text-soft);
     }
 
     .seed-status {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .seed-status span {
-      display: inline-flex;
+      display: flex;
       align-items: center;
       gap: 6px;
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .status-pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(108, 240, 255, 0.4);
+      background: radial-gradient(circle at top, rgba(108, 240, 255, 0.18), rgba(5, 7, 14, 0.9));
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
 
     .status-dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 999px;
-      background: var(--accent);
-      box-shadow: 0 0 8px var(--accent);
-    }
-
-    .status-dot.thinking {
-      background: var(--accent-warn);
-      box-shadow: 0 0 8px var(--accent-warn);
-    }
-
-    .status-dot.error {
-      background: var(--accent-error);
-      box-shadow: 0 0 8px var(--accent-error);
+      background: var(--ok);
+      box-shadow: 0 0 8px rgba(108, 240, 255, 0.8);
     }
 
     .seed-main {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 780px) {
+      .seed-main {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .seed-panel {
+      border-radius: var(--radius);
+      background: radial-gradient(circle at top left, rgba(108, 240, 255, 0.08), rgba(5, 7, 14, 0.96));
+      border: 1px solid rgba(108, 240, 255, 0.16);
+      padding: 8px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-    }
-
-    .seed-console {
-      background: var(--panel);
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      padding: 10px 12px;
-      min-height: 160px;
-      max-height: 260px;
-      overflow-y: auto;
-      font-size: 13px;
-      line-height: 1.4;
-    }
-
-    .seed-console-entry {
-      margin-bottom: 6px;
-    }
-
-    .seed-console-entry.system {
-      color: var(--muted);
-    }
-
-    .seed-console-entry.neko {
-      color: var(--accent);
-    }
-
-    .seed-console-entry.user {
-      color: #9bb4ff;
-    }
-
-    .seed-console-entry strong {
-      font-weight: 600;
-    }
-
-    .seed-input-area {
-      position: relative;
-      display: grid;
-      grid-template-rows: auto auto;
       gap: 8px;
+      min-height: 0;
     }
 
-    .command-ring {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      grid-template-rows: auto auto auto;
+    .seed-panel-header {
+      display: flex;
       align-items: center;
-      justify-items: center;
+      justify-content: space-between;
       gap: 6px;
-    }
-
-    .command-ring-spacer {
-      height: 1px;
-      width: 1px;
-    }
-
-    .command-button {
-      background: var(--button-bg);
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      color: var(--muted);
       font-size: 11px;
-      padding: 4px 10px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
-      white-space: nowrap;
+      color: var(--text-soft);
     }
 
-    .command-button:hover {
-      background: var(--button-hover);
-      border-color: var(--accent);
-      color: var(--text);
-      transform: translateY(-1px);
+    .seed-panel-header span:first-child {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 10px;
+      color: var(--accent-strong);
     }
 
-    .command-button.primary {
-      color: var(--text);
-      border-color: var(--accent);
+    .seed-panel-header span:last-child {
+      opacity: 0.8;
     }
 
-    .command-button.hidden {
-      opacity: 0;
-      pointer-events: none;
-      transform: scale(0.9);
-    }
-
-    .command-button.back {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    .prompt-row {
-      display: flex;
-      align-items: stretch;
-      gap: 8px;
-      position: relative;
-    }
-
-    .prompt-box {
+    .seed-panel-body {
       flex: 1;
-      background: var(--panel);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-height: 0;
+    }
+
+    .neko-shell {
+      position: relative;
       border-radius: var(--radius);
-      border: 1px solid var(--border);
+      background: radial-gradient(circle at top, rgba(108, 240, 255, 0.12), rgba(5, 7, 14, 0.96));
+      border: 1px solid rgba(108, 240, 255, 0.25);
+      padding: 8px;
       display: flex;
-      align-items: center;
-      padding: 6px 10px;
       gap: 8px;
-      position: relative;
+      align-items: stretch;
       overflow: hidden;
-      min-height: 170px;
     }
-
-    .prompt-input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: var(--text);
-      font-size: 14px;
-      position: relative;
-      z-index: 2;
-    }
-
-    .prompt-input::placeholder {
-      color: #5c6680;
-    }
-
-    .send-button {
-      background: var(--accent);
-      color: #020308;
-      border-radius: 999px;
-      border: none;
-      padding: 6px 14px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
-      box-shadow: 0 0 12px rgba(56, 255, 136, 0.4);
-      white-space: nowrap;
-    }
-
-    .send-button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 0 18px rgba(56, 255, 136, 0.7);
-      background: #4bff98;
-    }
-
-    .send-button:active {
-      transform: translateY(0);
-      box-shadow: 0 0 8px rgba(56, 255, 136, 0.4);
-    }
-
-    /* Neon avatar hologram */
 
     .neko-avatar {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-      opacity: 0.4;
-      z-index: 1;
-    }
-
-    .neko-outline {
-      width: 90px;
-      height: 130px;
-      border-radius: 24px;
-      border: 2px solid var(--accent);
-      box-shadow: 0 0 18px rgba(56, 255, 136, 0.9);
       position: relative;
-      animation: nekoIdle 3s ease-in-out infinite;
+      width: 80px;
+      min-width: 80px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 4px 0 0;
     }
 
-    .neko-outline::before {
-      content: "";
-      position: absolute;
-      width: 40px;
-      height: 32px;
-      border-radius: 16px;
-      border: 2px solid currentColor;
-      top: -26px;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-
-    .neko-outline::after {
-      content: "";
-      position: absolute;
-      width: 52px;
-      height: 40px;
-      border-radius: 6px;
-      border: 2px solid currentColor;
-      bottom: 6px;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-
-    .neko-ear-left,
-    .neko-ear-right {
-      position: absolute;
-      width: 0;
-      height: 0;
-      border-left: 10px solid transparent;
-      border-right: 10px solid transparent;
-      border-bottom: 16px solid currentColor;
-      top: -40px;
-    }
-
-    .neko-ear-left {
-      left: 10px;
-    }
-
-    .neko-ear-right {
-      right: 10px;
-    }
-
-    .neko-glasses {
-      position: absolute;
-      width: 34px;
-      height: 10px;
+    .neko-body {
+      position: relative;
+      width: 54px;
+      height: 120px;
       border-radius: 999px;
-      border: 2px solid currentColor;
+      border: 1px solid rgba(108, 240, 255, 0.7);
+      box-shadow: var(--avatar-glow);
+      background: radial-gradient(circle at top, rgba(108, 240, 255, 0.18), transparent 55%);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      overflow: visible;
+    }
+
+    .neko-body::before {
+      content: "";
+      position: absolute;
       top: -18px;
       left: 50%;
       transform: translateX(-50%);
-      box-shadow: 0 0 8px currentColor;
-    }
-
-    .neko-state-ready .neko-outline {
-      color: var(--accent);
-      border-color: var(--accent);
-      box-shadow: 0 0 18px rgba(56, 255, 136, 0.9);
-    }
-
-    .neko-state-thinking .neko-outline {
-      color: var(--accent-warn);
-      border-color: var(--accent-warn);
-      box-shadow: 0 0 18px rgba(255, 179, 71, 0.9);
-      animation: nekoThinking 1.4s ease-in-out infinite;
-    }
-
-    .neko-state-error .neko-outline {
-      color: var(--accent-error);
-      border-color: var(--accent-error);
-      box-shadow: 0 0 20px rgba(255, 75, 75, 1);
-      animation: nekoError 0.6s ease-in-out infinite;
-    }
-
-    .neko-pointer {
-      position: fixed;
-      width: 26px;
-      height: 26px;
+      width: 40px;
+      height: 40px;
       border-radius: 999px;
-      border: 2px dashed var(--accent);
-      opacity: 0;
-      transform: scale(0.7);
-      transition: opacity 0.2s ease-out, transform 0.2s ease-out, top 0.2s ease-out, left 0.2s ease-out;
-      pointer-events: none;
-      z-index: 40;
+      border: 1px solid rgba(108, 240, 255, 0.7);
+      box-shadow: 0 0 14px rgba(108, 240, 255, 0.9);
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), transparent 45%),
+        radial-gradient(circle at 70% 30%, rgba(255, 255, 255, 0.7), transparent 45%),
+        radial-gradient(circle at 50% 80%, rgba(108, 240, 255, 0.7), transparent 55%);
     }
 
-    .neko-pointer.active {
-      opacity: 1;
-      transform: scale(1);
+    .neko-ear {
+      position: absolute;
+      top: -26px;
+      width: 18px;
+      height: 18px;
+      border-radius: 4px 14px 4px 14px;
+      border: 1px solid rgba(108, 240, 255, 0.8);
+      box-shadow: 0 0 10px rgba(108, 240, 255, 0.8);
+      background: radial-gradient(circle at top, rgba(108, 240, 255, 0.7), transparent 70%);
     }
 
-    @keyframes nekoIdle {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-3px); }
+    .neko-ear.left {
+      left: 6px;
+      transform: rotate(-18deg);
     }
 
-    @keyframes nekoThinking {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-6px); }
+    .neko-ear.right {
+      right: 6px;
+      transform: rotate(18deg);
     }
 
-    @keyframes nekoError {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-3px); }
-      75% { transform: translateX(3px); }
+    .neko-coat {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 64px;
+      height: 70px;
+      border-radius: 999px 999px 12px 12px;
+      border: 1px solid rgba(108, 240, 255, 0.7);
+      background:
+        linear-gradient(to bottom, rgba(108, 240, 255, 0.18), rgba(5, 7, 14, 0.96)),
+        repeating-linear-gradient(
+          to bottom,
+          rgba(108, 240, 255, 0.3),
+          rgba(108, 240, 255, 0.3) 1px,
+          transparent 1px,
+          transparent 3px
+        );
+      box-shadow: 0 0 16px rgba(108, 240, 255, 0.7);
     }
 
-    .submenu-row {
+    .neko-coat::before {
+      content: "";
+      position: absolute;
+      inset: 8px 18px 10px;
+      border-radius: 999px;
+      border: 1px dashed rgba(108, 240, 255, 0.6);
+    }
+
+    .neko-orbit {
+      position: absolute;
+      inset: -10px;
+      border-radius: 999px;
+      border: 1px dashed rgba(108, 240, 255, 0.35);
+      box-shadow: 0 0 18px rgba(108, 240, 255, 0.4);
+      opacity: 0.9;
+      animation: orbit-spin 14s linear infinite;
+    }
+
+    .neko-orbit::before {
+      content: "";
+      position: absolute;
+      top: 6px;
+      right: 10px;
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(108, 240, 255, 0.9);
+      box-shadow: 0 0 10px rgba(108, 240, 255, 0.9);
+    }
+
+    @keyframes orbit-spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .neko-prompt {
+      flex: 1;
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: column;
       gap: 6px;
-      justify-content: center;
-      margin-top: 4px;
     }
 
-    .submenu-button {
-      background: var(--button-bg);
+    .neko-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .neko-line-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .neko-name {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 10px;
+      color: var(--accent-strong);
+    }
+
+    .neko-mic {
+      width: 22px;
+      height: 22px;
       border-radius: 999px;
-      border: 1px solid var(--border);
-      color: var(--muted);
+      border: 1px solid rgba(108, 240, 255, 0.6);
+      background: radial-gradient(circle at top, rgba(108, 240, 255, 0.3), rgba(5, 7, 14, 0.96));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-strong);
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(108, 240, 255, 0.6);
+      transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+      font-size: 13px;
+    }
+
+    .neko-mic.active {
+      transform: translateY(-1px) scale(1.02);
+      box-shadow: 0 0 14px rgba(108, 240, 255, 0.9);
+      background: radial-gradient(circle at top, rgba(108, 240, 255, 0.5), rgba(5, 7, 14, 0.96));
+    }
+
+    .neko-input-shell {
+      position: relative;
+      border-radius: 999px;
+      background: rgba(3, 5, 10, 0.9);
+      border: 1px solid rgba(108, 240, 255, 0.4);
+      padding: 4px 4px 4px 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .neko-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 13px;
+      padding: 4px 0;
+    }
+
+    .neko-input::placeholder {
+      color: rgba(169, 179, 217, 0.7);
+    }
+
+    .neko-send {
+      border-radius: 999px;
+      border: 1px solid rgba(108, 240, 255, 0.7);
+      background: radial-gradient(circle at top, rgba(108, 240, 255, 0.4), rgba(5, 7, 14, 0.96));
+      color: var(--bg);
       font-size: 11px;
       padding: 4px 10px;
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
-      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      box-shadow: 0 0 10px rgba(108, 240, 255, 0.8);
+      transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
     }
 
-    .submenu-button:hover {
-      background: var(--button-hover);
-      border-color: var(--accent);
-      color: var(--text);
+    .neko-send:hover {
       transform: translateY(-1px);
+      box-shadow: 0 0 14px rgba(108, 240, 255, 1);
     }
 
-    .submenu-container.hidden {
-      display: none;
+    .neko-send:active {
+      transform: translateY(0);
+      box-shadow: 0 0 8px rgba(108, 240, 255, 0.7);
     }
 
-    .mic-toggle {
-      position: fixed;
-      right: 18px;
-      bottom: 18px;
-      width: 52px;
-      height: 52px;
+    .neko-hint {
+      font-size: 10px;
+      color: var(--text-soft);
+      opacity: 0.9;
+    }
+
+    .log-shell {
+      flex: 1;
+      border-radius: var(--radius);
+      background: rgba(3, 5, 10, 0.9);
+      border: 1px solid rgba(108, 240, 255, 0.18);
+      padding: 6px;
+      font-size: 11px;
+      color: var(--text-soft);
+      overflow: auto;
+      max-height: 220px;
+      font-family: var(--font-mono);
+    }
+
+    .log-entry {
+      margin-bottom: 4px;
+      line-height: 1.4;
+    }
+
+    .log-entry span.tag {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 9px;
+      padding: 1px 6px;
       border-radius: 999px;
-      border: 1px solid var(--border);
-      background: radial-gradient(circle at 30% 0, #3bff9a 0, #0b0f18 55%);
+      margin-right: 4px;
+    }
+
+    .tag-user {
+      border: 1px solid rgba(108, 240, 255, 0.6);
+      color: var(--accent-strong);
+    }
+
+    .tag-neko {
+      border: 1px solid rgba(108, 240, 255, 0.6);
+      color: var(--bg);
+      background: rgba(108, 240, 255, 0.9);
+    }
+
+    .tag-sandbox {
+      border: 1px solid rgba(255, 214, 108, 0.8);
+      color: var(--warn);
+    }
+
+    .tag-live {
+      border: 1px solid rgba(108, 255, 154, 0.8);
+      color: var(--ok);
+    }
+
+    .tag-error {
+      border: 1px solid rgba(255, 79, 106, 0.8);
+      color: var(--danger);
+    }
+
+    .tag-safety {
+      border: 1px solid rgba(108, 240, 255, 0.7);
+      color: var(--accent-strong);
+    }
+
+    .seed-right-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .report-card {
+      border-radius: var(--radius);
+      background: rgba(3, 5, 10, 0.9);
+      border: 1px solid rgba(108, 240, 255, 0.18);
+      padding: 6px 7px;
+      font-size: 11px;
+      color: var(--text-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .report-header {
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .report-header span:first-child {
+      color: var(--accent-strong);
+    }
+
+    .report-header span:last-child {
+      color: var(--text-soft);
+      opacity: 0.8;
+    }
+
+    .report-body {
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .report-list {
+      margin: 4px 0 0;
+      padding-left: 14px;
+    }
+
+    .report-list li {
+      margin-bottom: 2px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(108, 240, 255, 0.4);
+      font-size: 10px;
+      color: var(--accent-strong);
+      background: rgba(108, 240, 255, 0.08);
+    }
+
+    .pill.warn {
+      border-color: rgba(255, 214, 108, 0.8);
+      color: var(--warn);
+      background: rgba(255, 214, 108, 0.08);
+    }
+
+    .pill.ok {
+      border-color: rgba(108, 255, 154, 0.8);
+      color: var(--ok);
+      background: rgba(108, 255, 154, 0.08);
+    }
+
+    .pill.error {
+      border-color: rgba(255, 79, 106, 0.8);
+      color: var(--danger);
+      background: rgba(255, 79, 106, 0.08);
+    }
+
+    .seed-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 4px 2px 0;
+      font-size: 10px;
+      color: var(--text-soft);
+      opacity: 0.9;
+    }
+
+    .seed-footer span strong {
+      font-weight: 600;
+      color: var(--accent-strong);
+    }
+
+    .seed-footer-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .footer-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(108, 240, 255, 0.4);
+      background: rgba(3, 5, 10, 0.9);
+      color: var(--text-soft);
+      font-size: 10px;
+      padding: 2px 8px;
       cursor: pointer;
-      box-shadow: 0 0 18px rgba(56, 255, 136, 0.5);
-      transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
-      z-index: 50;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: background var(--transition), border-color var(--transition), transform var(--transition);
     }
 
-    .mic-toggle-icon {
-      width: 20px;
-      height: 28px;
-      border-radius: 999px;
-      border: 2px solid #020308;
-      position: relative;
+    .footer-btn:hover {
+      background: rgba(108, 240, 255, 0.12);
+      border-color: rgba(108, 240, 255, 0.7);
+      transform: translateY(-0.5px);
     }
 
-    .mic-toggle-icon::before {
-      content: "";
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      border-radius: 999px;
-      border: 2px solid #020308;
-      bottom: -8px;
-      left: 50%;
-      transform: translateX(-50%);
-      border-top-color: transparent;
-      border-left-color: transparent;
-      border-right-color: transparent;
-    }
-
-    .mic-toggle.off {
-      background: #101522;
-      box-shadow: 0 0 8px rgba(0, 0, 0, 0.7);
-      border-color: #252b3d;
-    }
-
-    .mic-toggle.off .mic-toggle-icon {
-      border-color: #555d72;
-    }
-
-    .mic-toggle.off .mic-toggle-icon::before {
-      border-color: #555d72;
-      border-top-color: transparent;
-      border-left-color: transparent;
-      border-right-color: transparent;
-    }
-
-    .mic-toggle.listening {
-      background: radial-gradient(circle at 30% 0, #38ff88 0, #0b0f18 55%);
-      box-shadow: 0 0 24px rgba(56, 255, 136, 0.9);
-      border-color: var(--accent);
-      transform: translateY(-1px);
-    }
-
-    .mic-toggle.listening .mic-toggle-icon {
-      animation: micPulse 1.2s ease-in-out infinite;
-    }
-
-    @keyframes micPulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.08); }
-    }
-
-    @media (max-width: 640px) {
-      .seed-shell {
-        padding: 12px;
-      }
-      .prompt-box {
-        min-height: 180px;
-      }
+    .footer-btn span.icon {
+      font-size: 11px;
     }
   </style>
 </head>
 <body>
   <div class="seed-shell">
-    <div class="seed-header">
-      <div class="seed-title">Seed OS · Neko Lab Interface</div>
+    <header class="seed-header">
+      <div class="seed-title">
+        <div class="seed-logo"></div>
+        <div class="seed-title-text">
+          <span>Seed · Neko Core</span>
+          <span>Operator avatar between you and system changes</span>
+        </div>
+      </div>
       <div class="seed-status">
-        <span><span class="status-dot" id="statusDot"></span> <span id="statusLabel">Ready</span></span>
-      </div>
-    </div>
-
-    <div class="seed-main">
-      <div class="seed-console" id="console">
-        <div class="seed-console-entry system">
-          <strong>[system]</strong> Seed OS brain initialized. Neko is the interface. Text + voice both feed the same intent engine.
-        </div>
-        <div class="seed-console-entry system">
-          <strong>[hint]</strong> Describe what you want Seed to do. I’ll propose the change, you approve, then I apply it inside this running system.
+        <div class="status-pill">
+          <div class="status-dot" id="status-dot"></div>
+          <span id="status-text">Sandbox first · Live guarded</span>
         </div>
       </div>
+    </header>
 
-      <div class="seed-input-area">
-        <div class="command-ring">
-          <button class="command-button primary" data-main="master" id="btnMaster">Master Control</button>
-          <div class="command-ring-spacer"></div>
-          <button class="command-button" data-main="sandbox" id="btnSandbox">Sandbox</button>
-          <button class="command-button" data-main="system" id="btnSystem">System Options</button>
-          <div class="command-ring-spacer"></div>
-          <button class="command-button" data-main="extra" id="btnExtra">Extra Slot</button>
+    <main class="seed-main">
+      <section class="seed-panel">
+        <div class="seed-panel-header">
+          <span>Neko interface</span>
+          <span>Talk like you do here · She handles the shape</span>
         </div>
-
-        <div class="submenu-container hidden" id="submenuContainer">
-          <div class="submenu-row" id="submenuButtons"></div>
-          <div class="submenu-row">
-            <button class="command-button back" id="btnBack">&larr; Back to Main Controls</button>
-          </div>
-        </div>
-
-        <div class="prompt-row">
-          <div class="prompt-box" id="promptBox">
-            <div class="neko-avatar neko-state-ready" id="nekoAvatar">
-              <div class="neko-outline">
-                <div class="neko-ear-left"></div>
-                <div class="neko-ear-right"></div>
-                <div class="neko-glasses"></div>
+        <div class="seed-panel-body">
+          <div class="neko-shell">
+            <div class="neko-avatar">
+              <div class="neko-body">
+                <div class="neko-ear left"></div>
+                <div class="neko-ear right"></div>
+                <div class="neko-coat"></div>
+                <div class="neko-orbit"></div>
               </div>
             </div>
-
-            <input
-              id="promptInput"
-              class="prompt-input"
-              type="text"
-              placeholder="Tell Seed what to change. Example: “add a dev tools button”, “switch theme”, “make avatar bigger”."
-            />
+            <div class="neko-prompt">
+              <div class="neko-line">
+                <div class="neko-line-left">
+                  <span class="neko-name">Neko · Lab Operator</span>
+                  <span id="neko-state-label">Listening for intent</span>
+                </div>
+                <button class="neko-mic" id="mic-btn" title="Toggle voice input">
+                  🎙
+                </button>
+              </div>
+              <div class="neko-input-shell">
+                <input
+                  id="neko-input"
+                  class="neko-input"
+                  placeholder="Talk to me like you do here, Eric. I’ll line it up and ask before I change anything."
+                />
+                <button id="neko-send" class="neko-send">Send</button>
+              </div>
+              <div class="neko-hint" id="neko-hint">
+                Daily: I’ll brief you on bugs, trends, and system health. All changes go to sandbox first, then I ask you.
+              </div>
+            </div>
           </div>
-          <button class="send-button" id="btnSend">
-            <span>Send</span>
-          </button>
+
+          <div class="log-shell" id="log">
+            <!-- Conversation + sandbox/live log -->
+          </div>
         </div>
+      </section>
+
+      <section class="seed-right-section">
+        <div class="report-card" id="report-bugs">
+          <div class="report-header">
+            <span>Daily bug scan</span>
+            <span id="report-bugs-status">Running sandbox checks…</span>
+          </div>
+          <div class="report-body" id="report-bugs-body">
+            <span class="pill warn">Pending</span> I’ll list anything broken, unstable, or risky here when you open Seed each day.
+          </div>
+        </div>
+
+        <div class="report-card" id="report-trends">
+          <div class="report-header">
+            <span>Trends & upgrades</span>
+            <span id="report-trends-status">Scanning ecosystem…</span>
+          </div>
+          <div class="report-body" id="report-trends-body">
+            <span class="pill">Preview</span> I’ll watch for tools, modules, and patterns that could make me run better and bring you the useful ones.
+          </div>
+        </div>
+
+        <div class="report-card" id="report-system">
+          <div class="report-header">
+            <span>System health & safety</span>
+            <span id="report-system-status">Sandbox-first · Rollback ready</span>
+          </div>
+          <div class="report-body" id="report-system-body">
+            <ul class="report-list" id="system-list">
+              <li><span class="pill ok">Live</span> Last known working model is ready as fallback.</li>
+              <li><span class="pill">Sandbox</span> All changes are tested in a separate environment before I ask to apply them.</li>
+              <li><span class="pill safety">Safety</span> If anything fails, I’ll roll back to the last safe state and tell you.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="seed-footer">
+      <span>
+        <strong>Neko</strong> thinks like we do here, but must always ask you before touching the live system.
+      </span>
+      <div class="seed-footer-actions">
+        <button class="footer-btn" id="btn-daily-brief">
+          <span class="icon">☀️</span>
+          Daily brief
+        </button>
+        <button class="footer-btn" id="btn-sandbox-test">
+          <span class="icon">🧪</span>
+          Run sandbox check
+        </button>
+        <button class="footer-btn" id="btn-rollback">
+          <span class="icon">⏪</span>
+          Roll back to last safe
+        </button>
       </div>
-    </div>
+    </footer>
   </div>
 
-  <div class="neko-pointer" id="nekoPointer"></div>
-
-  <button class="mic-toggle off" id="micToggle" aria-label="Toggle voice input">
-    <div class="mic-toggle-icon"></div>
-  </button>
-
   <script>
-    // Core elements
-    const consoleEl = document.getElementById("console");
-    const promptInput = document.getElementById("promptInput");
-    const btnSend = document.getElementById("btnSend");
-    const micToggle = document.getElementById("micToggle");
-    const statusDot = document.getElementById("statusDot");
-    const statusLabel = document.getElementById("statusLabel");
-    const nekoAvatar = document.getElementById("nekoAvatar");
-    const nekoPointer = document.getElementById("nekoPointer");
-    const submenuContainer = document.getElementById("submenuContainer");
-    const submenuButtons = document.getElementById("submenuButtons");
-    const btnBack = document.getElementById("btnBack");
-    const promptBox = document.getElementById("promptBox");
+    // -----------------------------
+    // Core state
+    // -----------------------------
+    const logEl = document.getElementById("log");
+    const inputEl = document.getElementById("neko-input");
+    const sendBtn = document.getElementById("neko-send");
+    const micBtn = document.getElementById("mic-btn");
+    const stateLabel = document.getElementById("neko-state-label");
+    const hintEl = document.getElementById("neko-hint");
 
-    const mainButtons = {
-      master: document.getElementById("btnMaster"),
-      sandbox: document.getElementById("btnSandbox"),
-      system: document.getElementById("btnSystem"),
-      extra: document.getElementById("btnExtra")
-    };
+    const reportBugsStatus = document.getElementById("report-bugs-status");
+    const reportBugsBody = document.getElementById("report-bugs-body");
+    const reportTrendsStatus = document.getElementById("report-trends-status");
+    const reportTrendsBody = document.getElementById("report-trends-body");
+    const reportSystemStatus = document.getElementById("report-system-status");
+    const statusDot = document.getElementById("status-dot");
+    const statusText = document.getElementById("status-text");
 
-    // Seed brain state
-    const SeedBrain = {
-      modules: {},
-      config: {
-        theme: "dark",
-        avatarSize: "large",
-        devToolsEnabled: false
-      },
-      lastProposal: null
-    };
+    const btnDailyBrief = document.getElementById("btn-daily-brief");
+    const btnSandboxTest = document.getElementById("btn-sandbox-test");
+    const btnRollback = document.getElementById("btn-rollback");
 
-    let currentMainPanel = null;
-    let listening = false;
-    let recognition = null;
+    let sandboxHealthy = true;
+    let lastSafeModel = "Seed model v0.1 · baseline";
+    let micActive = false;
+    let speechReady = false;
+    let selectedVoice = null;
 
-    // Console logging
-    function logEntry(type, text) {
+    // -----------------------------
+    // Logging
+    // -----------------------------
+    function addLog(tag, tagClass, text) {
       const div = document.createElement("div");
-      div.classList.add("seed-console-entry");
-      if (type === "system") div.classList.add("system");
-      if (type === "neko") div.classList.add("neko");
-      if (type === "user") div.classList.add("user");
-      div.innerHTML = `<strong>[${type}]</strong> ${text}`;
-      consoleEl.appendChild(div);
-      consoleEl.scrollTop = consoleEl.scrollHeight;
+      div.className = "log-entry";
+      const span = document.createElement("span");
+      span.className = "tag " + tagClass;
+      span.textContent = tag;
+      div.appendChild(span);
+      div.appendChild(document.createTextNode(text));
+      logEl.appendChild(div);
+      logEl.scrollTop = logEl.scrollHeight;
     }
 
-    // Avatar + status
-    function setNekoState(state) {
-      nekoAvatar.classList.remove("neko-state-ready", "neko-state-thinking", "neko-state-error");
-      statusDot.classList.remove("thinking", "error");
-      if (state === "ready") {
-        nekoAvatar.classList.add("neko-state-ready");
-        statusLabel.textContent = "Ready";
-      } else if (state === "thinking") {
-        nekoAvatar.classList.add("neko-state-thinking");
-        statusDot.classList.add("thinking");
-        statusLabel.textContent = "Thinking";
-      } else if (state === "error") {
-        nekoAvatar.classList.add("neko-state-error");
-        statusDot.classList.add("error");
-        statusLabel.textContent = "Issue";
+    function logUser(text) {
+      addLog("Eric", "tag-user", " " + text);
+    }
+
+    function logNeko(text) {
+      addLog("Neko", "tag-neko", " " + text);
+      speak(text);
+    }
+
+    function logSandbox(text) {
+      addLog("Sandbox", "tag-sandbox", " " + text);
+    }
+
+    function logLive(text) {
+      addLog("Live", "tag-live", " " + text);
+    }
+
+    function logError(text) {
+      addLog("Error", "tag-error", " " + text);
+    }
+
+    function logSafety(text) {
+      addLog("Safety", "tag-safety", " " + text);
+    }
+
+    // -----------------------------
+    // Voice (soft, low UK feminine)
+    // -----------------------------
+    function initVoices() {
+      const voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+      if (!voices.length) return;
+
+      // Try to pick a UK female voice, then tune it low and smooth
+      const candidates = voices.filter(v =>
+        /en-GB|UK English/i.test(v.lang || v.name) && /female|Google UK English/i.test(v.name.toLowerCase())
+      );
+      selectedVoice = candidates[0] || voices.find(v => /en-GB|UK/i.test(v.lang || v.name)) || voices[0];
+      speechReady = !!selectedVoice;
+    }
+
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.onvoiceschanged = initVoices;
+      initVoices();
+    }
+
+    function speak(text) {
+      if (!("speechSynthesis" in window) || !speechReady || !selectedVoice) return;
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.voice = selectedVoice;
+      utter.rate = 0.92;  // smooth
+      utter.pitch = 0.8;  // lower, soft
+      utter.volume = 1.0;
+      window.speechSynthesis.speak(utter);
+    }
+
+    // -----------------------------
+    // Simple intent engine (stub)
+    // -----------------------------
+    function handleUserInput(raw) {
+      const text = raw.trim();
+      if (!text) return;
+      logUser(text);
+      inputEl.value = "";
+
+      // Very simple intent detection (placeholder for real AI)
+      const lower = text.toLowerCase();
+
+      if (lower.includes("bug") || lower.includes("broken") || lower.includes("error")) {
+        nekoExplain("I’ll treat that as a bug report and run a sandbox check around it.");
+        runSandboxCheck(true);
+        return;
       }
+
+      if (lower.includes("trend") || lower.includes("upgrade") || lower.includes("new")) {
+        nekoExplain("You’re asking about upgrades and trends. I’ll scan what’s relevant and bring you options.");
+        generateTrendPreview();
+        return;
+      }
+
+      if (lower.includes("theme") || lower.includes("dark") || lower.includes("light")) {
+        proposeChange("Flip the visual theme of the interface", () => {
+          document.body.classList.toggle("alt-theme");
+        });
+        return;
+      }
+
+      if (lower.includes("button")) {
+        proposeChange("Add a quick-action button to the footer for a custom task", () => {
+          addCustomFooterButton("Custom", "✨");
+        });
+        return;
+      }
+
+      if (lower.includes("reset") || lower.includes("rollback") || lower.includes("safe")) {
+        nekoExplain("You’re asking about safety. I’ll keep last known working model ready and roll back if needed.");
+        return;
+      }
+
+      // Default: treat as general intent
+      nekoExplain("I’ll interpret what you’re asking, line up a change in sandbox, and ask before I touch live.");
+      // Here is where a real AI model would interpret and propose code changes.
     }
 
-    function pointNekoAtElement(el) {
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const pointerRect = nekoPointer.getBoundingClientRect();
-      const x = rect.left + rect.width / 2;
-      const y = rect.top + rect.height / 2;
-      nekoPointer.style.left = x - pointerRect.width / 2 + "px";
-      nekoPointer.style.top = y - pointerRect.height / 2 + "px";
-      nekoPointer.classList.add("active");
+    function nekoExplain(text) {
+      stateLabel.textContent = "Thinking in sandbox first";
+      logNeko(text);
       setTimeout(() => {
-        nekoPointer.classList.remove("active");
+        stateLabel.textContent = "Listening for intent";
       }, 1200);
     }
 
-    // Command ring
-    function showMainButtons() {
-      Object.values(mainButtons).forEach(btn => {
-        btn.classList.remove("hidden");
-        btn.classList.remove("primary");
-      });
-      mainButtons.master.classList.add("primary");
-      submenuContainer.classList.add("hidden");
-      currentMainPanel = null;
-    }
+    // -----------------------------
+    // Proposal + permission gate
+    // -----------------------------
+    function proposeChange(description, applyFn) {
+      const proposalId = Date.now();
+      const question = `Eric, here’s what I’m thinking: ${description}. Do you want me to try it in sandbox first?`;
+      logNeko(question);
 
-    function openMainPanel(panel) {
-      currentMainPanel = panel;
-      Object.entries(mainButtons).forEach(([key, btn]) => {
-        if (key === panel) {
-          btn.classList.remove("hidden");
-          btn.classList.add("primary");
-        } else {
-          btn.classList.add("hidden");
-          btn.classList.remove("primary");
-        }
-      });
-      buildSubmenu(panel);
-      submenuContainer.classList.remove("hidden");
-      pointNekoAtElement(mainButtons[panel]);
-    }
+      const confirmBtn = document.createElement("button");
+      confirmBtn.textContent = "Approve sandbox test";
+      confirmBtn.className = "footer-btn";
+      confirmBtn.style.marginTop = "4px";
 
-    function buildSubmenu(panel) {
-      submenuButtons.innerHTML = "";
-      let items = [];
+      const denyBtn = document.createElement("button");
+      denyBtn.textContent = "Not now";
+      denyBtn.className = "footer-btn";
+      denyBtn.style.marginTop = "4px";
 
-      if (panel === "master") {
-        items = [
-          { id: "mc-overview", label: "System Overview", desc: "Summarize current modules and config." },
-          { id: "mc-list-modules", label: "List Modules", desc: "Show loaded modules." },
-          { id: "mc-reset-proposal", label: "Clear Last Proposal", desc: "Forget any pending change." }
-        ];
-      } else if (panel === "sandbox") {
-        items = [
-          { id: "sb-test-theme", label: "Test Theme Flip", desc: "Preview a theme change without committing." },
-          { id: "sb-test-avatar", label: "Test Avatar Size", desc: "Preview a different avatar size." }
-        ];
-      } else if (panel === "system") {
-        items = [
-          { id: "sys-status", label: "System Status", desc: "Report health, config, and last proposal." },
-          { id: "sys-config", label: "Config Summary", desc: "Explain current configuration." }
-        ];
-      } else if (panel === "extra") {
-        items = [
-          { id: "ex-devtools", label: "Toggle Dev Tools Module", desc: "Enable or disable the Dev Tools button." }
-        ];
-      }
+      const wrapper = document.createElement("div");
+      wrapper.style.margin = "4px 0 6px";
+      wrapper.appendChild(confirmBtn);
+      wrapper.appendChild(denyBtn);
+      logEl.appendChild(wrapper);
+      logEl.scrollTop = logEl.scrollHeight;
 
-      items.forEach(item => {
-        const btn = document.createElement("button");
-        btn.className = "submenu-button";
-        btn.textContent = item.label;
-        btn.dataset.actionId = item.id;
-        btn.title = item.desc;
-        btn.addEventListener("click", () => handleSubmenuAction(item));
-        submenuButtons.appendChild(btn);
-      });
-    }
+      confirmBtn.onclick = () => {
+        wrapper.remove();
+        logSandbox(`Testing: ${description}`);
+        runSandboxCheck(false, () => {
+          // If sandbox healthy, ask to apply live
+          if (sandboxHealthy) {
+            const q2 = `Sandbox looks stable for: ${description}. Shall I apply this to the live interface?`;
+            logNeko(q2);
 
-    btnBack.addEventListener("click", () => {
-      logEntry("neko", "Returning to main control buttons.");
-      showMainButtons();
-      setNekoState("ready");
-    });
+            const applyBtn = document.createElement("button");
+            applyBtn.textContent = "Apply to live";
+            applyBtn.className = "footer-btn";
+            applyBtn.style.marginTop = "4px";
 
-    Object.entries(mainButtons).forEach(([key, btn]) => {
-      btn.addEventListener("click", () => {
-        logEntry("neko", `Opening ${btn.textContent} panel.`);
-        setNekoState("thinking");
-        openMainPanel(key);
-        setTimeout(() => setNekoState("ready"), 400);
-      });
-    });
+            const cancelBtn = document.createElement("button");
+            cancelBtn.textContent = "Cancel";
+            cancelBtn.className = "footer-btn";
+            cancelBtn.style.marginTop = "4px";
 
-    // Seed Brain: proposals + apply
+            const wrapper2 = document.createElement("div");
+            wrapper2.style.margin = "4px 0 6px";
+            wrapper2.appendChild(applyBtn);
+            wrapper2.appendChild(cancelBtn);
+            logEl.appendChild(wrapper2);
+            logEl.scrollTop = logEl.scrollHeight;
 
-    function proposeChange(label, description, applyFn) {
-      SeedBrain.lastProposal = { label, description, applyFn };
-      logEntry("neko", `Proposed change: <strong>${label}</strong>. ${description}`);
-      logEntry("neko", "If this looks right, say “yes”, “do it”, or “go ahead” and I’ll apply it inside Seed.");
-    }
+            applyBtn.onclick = () => {
+              wrapper2.remove();
+              logLive(`Applying: ${description}`);
+              try {
+                applyFn();
+                logSafety("Change applied to live. Last known safe model updated.");
+                lastSafeModel = `Seed model · updated change: ${description}`;
+              } catch (e) {
+                logError("Something went wrong applying that change. Rolling back to last safe model.");
+                sandboxHealthy = false;
+                updateSystemStatus();
+              }
+            };
 
-    function applyLastProposal() {
-      if (!SeedBrain.lastProposal) {
-        logEntry("neko", "There is no pending change to apply. Ask me to change something first.");
-        return;
-      }
-      const { label, applyFn } = SeedBrain.lastProposal;
-      try {
-        setNekoState("thinking");
-        applyFn();
-        logEntry("neko", `Applied: <strong>${label}</strong>. This only affects the running Seed session.`);
-        SeedBrain.lastProposal = null;
-        setTimeout(() => setNekoState("ready"), 400);
-      } catch (e) {
-        logEntry("system", `Error applying change: ${e.message}`);
-        setNekoState("error");
-        setTimeout(() => setNekoState("ready"), 800);
-      }
-    }
-
-    // Example internal changes
-
-    function flipTheme() {
-      if (SeedBrain.config.theme === "dark") {
-        document.documentElement.style.setProperty("--bg", "#f5f7ff");
-        document.documentElement.style.setProperty("--panel", "#ffffff");
-        document.documentElement.style.setProperty("--text", "#020308");
-        document.documentElement.style.setProperty("--muted", "#4b5565");
-        SeedBrain.config.theme = "light";
-      } else {
-        document.documentElement.style.setProperty("--bg", "#05060a");
-        document.documentElement.style.setProperty("--panel", "#0b0f18");
-        document.documentElement.style.setProperty("--text", "#f5f7ff");
-        document.documentElement.style.setProperty("--muted", "#8a92a8");
-        SeedBrain.config.theme = "dark";
-      }
-    }
-
-    function setAvatarSize(size) {
-      const outline = nekoAvatar.querySelector(".neko-outline");
-      if (!outline) return;
-      if (size === "large") {
-        outline.style.width = "90px";
-        outline.style.height = "130px";
-        SeedBrain.config.avatarSize = "large";
-      } else if (size === "medium") {
-        outline.style.width = "70px";
-        outline.style.height = "100px";
-        SeedBrain.config.avatarSize = "medium";
-      } else {
-        outline.style.width = "50px";
-        outline.style.height = "80px";
-        SeedBrain.config.avatarSize = "small";
-      }
-    }
-
-    function toggleDevToolsModule() {
-      SeedBrain.config.devToolsEnabled = !SeedBrain.config.devToolsEnabled;
-      const existing = document.getElementById("btnDevTools");
-      if (SeedBrain.config.devToolsEnabled) {
-        if (!existing) {
-          const btn = document.createElement("button");
-          btn.id = "btnDevTools";
-          btn.className = "command-button";
-          btn.textContent = "Dev Tools";
-          btn.addEventListener("click", () => {
-            logEntry("neko", "Dev Tools panel is a placeholder. In a future build, this can host inspector tools.");
-          });
-          // Attach near Extra
-          mainButtons.extra.insertAdjacentElement("afterend", btn);
-        }
-      } else {
-        if (existing) existing.remove();
-      }
-    }
-
-    // Submenu actions
-
-    function handleSubmenuAction(item) {
-      setNekoState("thinking");
-
-      if (item.id === "mc-overview") {
-        logEntry("neko", `Modules loaded: ${Object.keys(SeedBrain.modules).length || "none yet"}.`);
-        logEntry("neko", `Theme: ${SeedBrain.config.theme}. Avatar size: ${SeedBrain.config.avatarSize}. DevTools: ${SeedBrain.config.devToolsEnabled ? "on" : "off"}.`);
-        setNekoState("ready");
-        return;
-      }
-
-      if (item.id === "mc-list-modules") {
-        const keys = Object.keys(SeedBrain.modules);
-        if (!keys.length) {
-          logEntry("neko", "No named modules registered yet. I can still change layout and config directly.");
-        } else {
-          logEntry("neko", "Loaded modules: " + keys.join(", "));
-        }
-        setNekoState("ready");
-        return;
-      }
-
-      if (item.id === "mc-reset-proposal") {
-        SeedBrain.lastProposal = null;
-        logEntry("neko", "Cleared the last pending change. You can ask for a new one.");
-        setNekoState("ready");
-        return;
-      }
-
-      if (item.id === "sb-test-theme") {
-        logEntry("neko", "Sandbox: previewing a theme flip. This is just a visual test; you can ask me to commit it after.");
-        flipTheme();
-        setTimeout(() => setNekoState("ready"), 400);
-        return;
-      }
-
-      if (item.id === "sb-test-avatar") {
-        logEntry("neko", "Sandbox: previewing a different avatar size.");
-        const next = SeedBrain.config.avatarSize === "large" ? "medium" : "large";
-        setAvatarSize(next);
-        setTimeout(() => setNekoState("ready"), 400);
-        return;
-      }
-
-      if (item.id === "sys-status") {
-        logEntry("neko", `Status: theme=${SeedBrain.config.theme}, avatarSize=${SeedBrain.config.avatarSize}, devTools=${SeedBrain.config.devToolsEnabled ? "on" : "off"}.`);
-        if (SeedBrain.lastProposal) {
-          logEntry("neko", `Pending proposal: <strong>${SeedBrain.lastProposal.label}</strong>.`);
-        } else {
-          logEntry("neko", "No pending proposals.");
-        }
-        setNekoState("ready");
-        return;
-      }
-
-      if (item.id === "sys-config") {
-        logEntry("neko", "Config summary: this Seed session can change theme, avatar size, and UI controls safely in memory.");
-        setNekoState("ready");
-        return;
-      }
-
-      if (item.id === "ex-devtools") {
-        proposeChange(
-          "Toggle Dev Tools module",
-          "This will add or remove a Dev Tools button in the command ring. It’s a safe UI-only change.",
-          () => toggleDevToolsModule()
-        );
-        setNekoState("ready");
-        return;
-      }
-
-      setNekoState("ready");
-    }
-
-    // Intent engine
-
-    function interpretIntent(text) {
-      const lower = text.toLowerCase().trim();
-      if (!lower) return { type: "empty" };
-
-      if (lower.includes("sandbox")) return { type: "openPanel", panel: "sandbox" };
-      if (lower.includes("master")) return { type: "openPanel", panel: "master" };
-      if (lower.includes("system")) return { type: "openPanel", panel: "system" };
-      if (lower.includes("extra")) return { type: "openPanel", panel: "extra" };
-
-      const confirms = ["yes", "go ahead", "that's fine", "that’s fine", "do it", "confirm", "ok", "okay", "apply"];
-      if (confirms.includes(lower)) {
-        return { type: "confirm" };
-      }
-
-      if (lower.includes("theme")) {
-        return { type: "changeTheme" };
-      }
-
-      if (lower.includes("avatar") && (lower.includes("bigger") || lower.includes("larger"))) {
-        return { type: "avatarSize", size: "large" };
-      }
-
-      if (lower.includes("avatar") && (lower.includes("smaller") || lower.includes("tiny"))) {
-        return { type: "avatarSize", size: "small" };
-      }
-
-      if (lower.includes("dev tools") || lower.includes("devtools")) {
-        return { type: "toggleDevTools" };
-      }
-
-      if (lower.includes("button") && lower.includes("dev")) {
-        return { type: "toggleDevTools" };
-      }
-
-      if (lower.startsWith("build") || lower.startsWith("create") || lower.startsWith("add")) {
-        return { type: "buildRequest", text };
-      }
-
-      return { type: "freeform", text };
-    }
-
-    function handleUserInput(text) {
-      logEntry("user", text);
-      setNekoState("thinking");
-
-      const intent = interpretIntent(text);
-
-      if (intent.type === "empty") {
-        setNekoState("ready");
-        return;
-      }
-
-      if (intent.type === "openPanel") {
-        logEntry("neko", `Interpreted as: open <strong>${intent.panel}</strong> panel.`);
-        openMainPanel(intent.panel);
-        setTimeout(() => setNekoState("ready"), 400);
-        return;
-      }
-
-      if (intent.type === "confirm") {
-        logEntry("neko", "Confirmation detected. I’ll apply the last proposed change inside this Seed session.");
-        applyLastProposal();
-        return;
-      }
-
-      if (intent.type === "changeTheme") {
-        proposeChange(
-          "Flip theme",
-          "Switch between dark and light theme for this Seed session.",
-          () => flipTheme()
-        );
-        setNekoState("ready");
-        return;
-      }
-
-      if (intent.type === "avatarSize") {
-        const label = intent.size === "large" ? "Make avatar larger" : "Make avatar smaller";
-        proposeChange(
-          label,
-          "Adjust the avatar hologram size inside the prompt box.",
-          () => setAvatarSize(intent.size)
-        );
-        setNekoState("ready");
-        return;
-      }
-
-      if (intent.type === "toggleDevTools") {
-        proposeChange(
-          "Toggle Dev Tools button",
-          "Add or remove a Dev Tools button in the command ring.",
-          () => toggleDevToolsModule()
-        );
-        setNekoState("ready");
-        return;
-      }
-
-      if (intent.type === "buildRequest") {
-        logEntry(
-          "neko",
-          "Interpreted as a build request. In this version, I can change layout, theme, avatar, and controls. For deeper modules, I’ll propose structures, not write files."
-        );
-        proposeChange(
-          "Record build idea",
-          "Store this request as a design note in the console so you can act on it later.",
-          () => {
-            logEntry("system", `Design note recorded: “${intent.text}”`);
+            cancelBtn.onclick = () => {
+              wrapper2.remove();
+              logNeko("Okay, I’ll hold that change in sandbox and leave live as-is.");
+            };
+          } else {
+            logError("Sandbox reported issues. I won’t touch live until we resolve them.");
           }
-        );
-        setNekoState("ready");
-        return;
-      }
+        });
+      };
 
-      if (intent.type === "freeform") {
-        logEntry(
-          "neko",
-          "Freeform request received. I’ll treat this as guidance for how you want Seed to behave and respond with suggestions, not automatic file changes."
-        );
-        setNekoState("ready");
-        return;
+      denyBtn.onclick = () => {
+        wrapper.remove();
+        logNeko("Alright, I’ll keep that idea on the shelf until you’re ready.");
+      };
+    }
+
+    // -----------------------------
+    // Sandbox + rollback (simulated)
+    // -----------------------------
+    function runSandboxCheck(fromUser, cb) {
+      stateLabel.textContent = "Sandbox checking…";
+      reportBugsStatus.textContent = "Sandbox running";
+      reportSystemStatus.textContent = "Sandbox-first · Monitoring";
+
+      setTimeout(() => {
+        // For now, we simulate mostly healthy with occasional warnings
+        const rand = Math.random();
+        if (rand < 0.15) {
+          sandboxHealthy = false;
+          reportBugsStatus.textContent = "Issues found";
+          reportBugsBody.innerHTML = `
+            <span class="pill error">Critical</span> Sandbox detected a conflict in a recent change.<br/>
+            I recommend we roll back to the last safe model: <strong>${lastSafeModel}</strong>.
+          `;
+          logError("Sandbox found a critical issue in the latest changes.");
+          logSafety(`Last safe model ready: ${lastSafeModel}`);
+          statusDot.style.background = "#ff4f6a";
+          statusText.textContent = "Sandbox flagged issues · Live protected";
+        } else if (rand < 0.45) {
+          sandboxHealthy = true;
+          reportBugsStatus.textContent = "Minor warnings";
+          reportBugsBody.innerHTML = `
+            <span class="pill warn">Warning</span> Sandbox found minor issues that don’t break live, but we should clean them up soon.
+          `;
+          logSandbox("Minor issues detected. Live is safe, but we should schedule cleanup.");
+          statusDot.style.background = "#ffd66c";
+          statusText.textContent = "Sandbox warnings · Live stable";
+        } else {
+          sandboxHealthy = true;
+          reportBugsStatus.textContent = "Clean";
+          reportBugsBody.innerHTML = `
+            <span class="pill ok">Stable</span> Sandbox reports no blocking bugs. Live system is safe.
+          `;
+          logSandbox("Sandbox reports stable. No blocking bugs.");
+          statusDot.style.background = "#6cff9a";
+          statusText.textContent = "Sandbox clean · Live stable";
+        }
+
+        updateSystemStatus();
+        stateLabel.textContent = "Listening for intent";
+        if (typeof cb === "function") cb();
+        if (fromUser) {
+          logNeko("Sandbox check complete. I’ll keep watching and tell you if anything critical appears.");
+        }
+      }, 900);
+    }
+
+    function updateSystemStatus() {
+      if (sandboxHealthy) {
+        reportSystemStatus.textContent = "Live stable · Rollback ready";
+      } else {
+        reportSystemStatus.textContent = "Issues detected · Rollback recommended";
       }
     }
 
-    // Text input
-    btnSend.addEventListener("click", () => {
-      const text = promptInput.value.trim();
-      if (!text) return;
-      promptInput.value = "";
-      handleUserInput(text);
+    function rollbackToLastSafe() {
+      logSafety(`Rolling back to last known safe model: ${lastSafeModel}`);
+      sandboxHealthy = true;
+      updateSystemStatus();
+      reportBugsStatus.textContent = "After rollback";
+      reportBugsBody.innerHTML = `
+        <span class="pill ok">Recovered</span> System restored to last safe model: <strong>${lastSafeModel}</strong>.
+      `;
+      statusDot.style.background = "#6cff9a";
+      statusText.textContent = "Rolled back · Live stable";
+      logNeko("I’ve restored the last safe state. We’re stable again.");
+    }
+
+    // -----------------------------
+    // Trends (simulated preview)
+    // -----------------------------
+    function generateTrendPreview() {
+      reportTrendsStatus.textContent = "Preview";
+      reportTrendsBody.innerHTML = `
+        <span class="pill">Today’s scan</span>
+        <ul class="report-list">
+          <li>Lightweight UI animation helpers that could make me feel smoother without heavy libraries.</li>
+          <li>New open-source prompt tools that might help me reason about your intent more clearly.</li>
+          <li>Safer sandbox patterns for testing changes before they ever touch live.</li>
+        </ul>
+        I’ll keep watching for anything that dramatically improves how I run and tell you when it’s worth your time.
+      `;
+      logSandbox("Trend scan preview updated. I’ll surface anything that meaningfully improves how I run.");
+    }
+
+    // -----------------------------
+    // Daily brief
+    // -----------------------------
+    function runDailyBrief() {
+      logNeko("Welcome back, Eric. Let me walk you through today’s quick operator brief.");
+
+      // 1) Bugs
+      runSandboxCheck(false, () => {
+        logNeko("First, here are the bugs and stability notes I’m seeing in sandbox.");
+        // 2) Trends
+        generateTrendPreview();
+        logNeko("Next, here’s what’s trending that might help me run better.");
+        // 3) System health
+        logNeko("Finally, here’s your system health snapshot. If anything ever looks critical, I’ll tell you first thing.");
+      });
+    }
+
+    // -----------------------------
+    // UI helpers
+    // -----------------------------
+    function addCustomFooterButton(label, icon) {
+      const container = document.querySelector(".seed-footer-actions");
+      const btn = document.createElement("button");
+      btn.className = "footer-btn";
+      const spanIcon = document.createElement("span");
+      spanIcon.className = "icon";
+      spanIcon.textContent = icon;
+      const spanLabel = document.createElement("span");
+      spanLabel.textContent = label;
+      btn.appendChild(spanIcon);
+      btn.appendChild(spanLabel);
+      btn.onclick = () => {
+        logNeko(`That custom button is wired to whatever you want it to be. For now, it’s just a placeholder.`);
+      };
+      container.appendChild(btn);
+      logLive(`Custom footer button added: ${label}`);
+    }
+
+    // -----------------------------
+    // Events
+    // -----------------------------
+    sendBtn.addEventListener("click", () => {
+      handleUserInput(inputEl.value);
     });
 
-    promptInput.addEventListener("keydown", (e) => {
+    inputEl.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
-        const text = promptInput.value.trim();
-        if (!text) return;
-        promptInput.value = "";
-        handleUserInput(text);
+        handleUserInput(inputEl.value);
       }
     });
 
-    // Voice input
-    function initSpeech() {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        logEntry("system", "Voice input not supported in this browser. Mic toggle will be visual only.");
-        return null;
-      }
-      const rec = new SpeechRecognition();
-      rec.lang = "en-US";
-      rec.interimResults = false;
-      rec.maxAlternatives = 1;
+    btnDailyBrief.addEventListener("click", () => {
+      runDailyBrief();
+    });
 
-      rec.addEventListener("result", (event) => {
-        const transcript = event.results[0][0].transcript;
-        logEntry("user", `(voice) ${transcript}`);
-        handleUserInput(transcript);
-      });
+    btnSandboxTest.addEventListener("click", () => {
+      runSandboxCheck(true);
+    });
 
-      rec.addEventListener("end", () => {
-        if (listening) {
-          toggleListening(false);
-        }
-      });
+    btnRollback.addEventListener("click", () => {
+      rollbackToLastSafe();
+    });
 
-      rec.addEventListener("error", (e) => {
-        logEntry("system", `Voice error: ${e.error}`);
-        setNekoState("error");
-        setTimeout(() => setNekoState("ready"), 1000);
-        toggleListening(false);
-      });
-
-      return rec;
-    }
-
-    function toggleListening(forceState) {
-      const newState = typeof forceState === "boolean" ? forceState : !listening;
-      listening = newState;
-
-      if (!recognition) {
-        recognition = initSpeech();
-      }
-
-      if (!recognition) {
-        micToggle.classList.add("off");
-        micToggle.classList.remove("listening");
-        return;
-      }
-
-      if (listening) {
-        micToggle.classList.remove("off");
-        micToggle.classList.add("listening");
-        setNekoState("thinking");
-        logEntry("system", "Voice listening started. Speak a request, then I’ll stop automatically.");
-        try {
-          recognition.start();
-        } catch (e) {}
+    // Mic button (placeholder – real STT would be wired here)
+    micBtn.addEventListener("click", () => {
+      micActive = !micActive;
+      micBtn.classList.toggle("active", micActive);
+      if (micActive) {
+        hintEl.textContent = "Voice input placeholder: talk to me in text for now, I’ll still respond like I’m in your ear.";
+        logNeko("If your browser supports it, I can be wired to real voice input later. For now, type like you talk.");
       } else {
-        micToggle.classList.add("off");
-        micToggle.classList.remove("listening");
-        try {
-          recognition.stop();
-        } catch (e) {}
-        setNekoState("ready");
-        logEntry("system", "Voice listening stopped.");
+        hintEl.textContent = "Daily: I’ll brief you on bugs, trends, and system health. All changes go to sandbox first, then I ask you.";
       }
-    }
-
-    micToggle.addEventListener("click", () => {
-      toggleListening();
     });
 
-    // Initial state
-    showMainButtons();
-    setNekoState("ready");
+    // -----------------------------
+    // Initial greeting
+    // -----------------------------
+    function initialGreeting() {
+      logNeko("Alright, Eric. Think of me as you talking to this system through a slim cat-girl in a lab coat.");
+      logNeko("Tell me what you want changed in your own words. I’ll think it through, test it in sandbox, and ask before I touch live.");
+      runDailyBrief();
+    }
+
+    window.addEventListener("load", initialGreeting);
   </script>
 </body>
 </html>
