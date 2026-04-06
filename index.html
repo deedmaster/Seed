@@ -1,17 +1,7 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Seed</title>
-  </head>
-  <body>
-    <h1>Seed is alive</h1>
-    <p>This is the first page.</p>
-  </body>
-</html>
-<!DOCTYPE html>
-<html>
 <head>
+    <meta charset="UTF-8">
     <title>Seed Bootstrap</title>
     <style>
         body {
@@ -41,9 +31,6 @@
             background: #222;
             color: #eee;
             border: 1px solid #444;
-        }
-        #modifyToggle {
-            margin-bottom: 10px;
         }
         button {
             padding: 10px;
@@ -90,7 +77,6 @@ function sendToSeed() {
 }
 
 function seedRespond(text) {
-    // Simple suggestion logic
     if (text.toLowerCase().includes("button")) {
         logMessage("Seed", "I can add a button here. Should I?");
         pendingAction = () => addButton();
@@ -109,7 +95,6 @@ function addButton() {
     logMessage("Seed", "Button added.");
 }
 
-// Listen for yes/no
 document.addEventListener("keydown", function(e) {
     if (!pendingAction) return;
 
@@ -117,17 +102,4 @@ document.addEventListener("keydown", function(e) {
         if (document.getElementById("modifyToggle").checked) {
             pendingAction();
         } else {
-            logMessage("Seed", "I need permission (toggle is off).");
-        }
-        pendingAction = null;
-    }
-
-    if (e.key.toLowerCase() === "n") {
-        logMessage("Seed", "Okay, I won't make that change.");
-        pendingAction = null;
-    }
-});
-</script>
-
-</body>
-</html>
+            logMessage
