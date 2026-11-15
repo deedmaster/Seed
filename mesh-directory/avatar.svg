@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#14141f"/>
+  <circle cx="200" cy="200" r="150" fill="#1e1e33"/>
+  <!-- hood -->
+  <path d="M200 60 C120 60 90 140 95 210 C98 260 120 300 200 300 C280 300 302 260 305 210 C310 140 280 60 200 60 Z" fill="#2b2b4a"/>
+  <!-- face -->
+  <ellipse cx="200" cy="190" rx="62" ry="72" fill="#e8ddc8"/>
+  <!-- hood shadow -->
+  <path d="M138 190 C138 130 165 95 200 95 C235 95 262 130 262 190 C250 150 230 138 200 138 C170 138 150 150 138 190 Z" fill="#2b2b4a"/>
+  <!-- eyes -->
+  <circle cx="176" cy="188" r="9" fill="#14141f"/>
+  <circle cx="224" cy="188" r="9" fill="#14141f"/>
+  <circle cx="179" cy="185" r="3" fill="#7c3aed"/>
+  <circle cx="227" cy="185" r="3" fill="#7c3aed"/>
+  <!-- smile -->
+  <path d="M182 222 Q200 234 218 222" stroke="#14141f" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <!-- thread swirls -->
+  <path d="M60 320 Q120 290 170 315 T280 310 T350 320" stroke="#7c3aed" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M80 345 Q150 325 210 342 T330 340" stroke="#4ade80" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <!-- book -->
+  <rect x="160" y="285" width="80" height="12" rx="4" fill="#a78bfa"/>
+  <rect x="168" y="272" width="64" height="12" rx="4" fill="#c4b5fd"/>
+</svg>

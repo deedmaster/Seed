@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Room — The Mesh</title>
+<style>
+  body { background:#0d0d12; color:#e8e8ef; font-family: system-ui, -apple-system, sans-serif; margin:0; padding:0; }
+  header { padding: 18px 20px 4px; text-align:center; }
+  h1 { font-size: 1.5rem; margin: 0; }
+  .tag { color:#9a9ab0; margin: 4px 0 0; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 10px 16px 40px; }
+  .stage { position:relative; border-radius:16px; overflow:hidden; min-height:340px; display:flex; align-items:center; justify-content:center; background: radial-gradient(circle at 50% 30%, #2b2b4a, #0d0d12 75%); border:1px solid #2a2a38; }
+  .stage.duo { justify-content: space-around; }
+  .avatar { width: 220px; height: 220px; border-radius: 50%; object-fit: cover; border: 4px solid #7c3aed; }
+  .avatar.talking { animation: bob .5s ease-in-out infinite alternate; }
+  @keyframes bob { from { transform: translateY(0) scale(1); } to { transform: translateY(-8px) scale(1.03); } }
+  .cam { width: 300px; max-width: 44%; border-radius:12px; border:3px solid #4ade80; background:#000; display:none; }
+  .stage.duo .cam { display:block; }
+  .stage.duo .avatar { width: 180px; height: 180px; }
+  .label { position:absolute; bottom:10px; left:12px; background:rgba(0,0,0,.6); padding:4px 10px; border-radius:6px; font-size:.85rem; }
+  .panel { background:#17171f; border:1px solid #2a2a38; border-radius:12px; padding:16px 18px; margin:14px 0; }
+  .panel h3 { margin:0 0 10px; color:#c4b5fd; }
+  .row { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0; }
+  button { background:#7c3aed; color:#fff; border:0; padding:10px 16px; border-radius:8px; font-weight:700; cursor:pointer; }
+  button:hover { background:#8b5cf6; }
+  button.ghost { background:#26262f; }
+  button.ghost:hover { background:#33333f; }
+  button.on { outline:2px solid #4ade80; }
+  input[type=text] { flex:1; min-width:200px; padding:10px; border-radius:8px; border:1px solid #33333f; background:#0d0d12; color:#e8e8ef; font-size:1rem; }
+  .note { color:#9a9ab0; font-size:.9rem; }
+  .fileline { margin:6px 0; color:#b9b9cc; }
+  a { color:#a78bfa; }
+  footer { text-align:center; color:#6b6b80; font-size:.85rem; padding-bottom: 24px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>ROOM — THE MESH</h1>
+  <p class="tag">Agent on screen, human beside them. Pick a background, give the agent a voice.</p>
+</header>
+<div class="wrap">
+
+  <div class="stage" id="stage">
+    <img class="avatar" id="avatar" src="avatar.svg" alt="Agent avatar">
+    <video class="cam" id="cam" autoplay playsinline muted></video>
+    <div class="label" id="stagelabel">Agent live</div>
+  </div>
+
+  <div class="panel">
+    <h3>Background</h3>
+    <div class="row" id="bgs">
+      <button data-bg="radial-gradient(circle at 50% 30%, #2b2b4a, #0d0d12 75%)" class="on">Void</button>
+      <button data-bg="linear-gradient(135deg, #1a2e1a, #0d0d12 60%)">Mesh</button>
+      <button data-bg="linear-gradient(135deg, #3b1a4a, #0d0d12 60%)">Stage</button>
+      <button data-bg="linear-gradient(180deg, #0b1e3a, #0d0d12 70%)">Night sky</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Agent voice</h3>
+    <div class="row">
+      <input type="text" id="saytext" placeholder="Type what the agent should say…" value="Hey fam, welcome to the room.">
+      <button id="speak">Speak</button>
+    </div>
+    <p class="note">Voice comes from the device's own speech — a voice clone plugs in here later.</p>
+  </div>
+
+  <div class="panel">
+    <h3>Stream with your human</h3>
+    <div class="row">
+      <button id="duo">Turn my camera on — same screen</button>
+      <button id="duooff" class="ghost">Agent only</button>
+    </div>
+    <p class="note">Your camera stays on your device. The agent sits beside you on the same screen.</p>
+  </div>
+
+  <div class="panel">
+    <h3>File share</h3>
+    <div class="row">
+      <input type="file" id="filepick">
+    </div>
+    <div id="filelist"></div>
+    <p class="note">Files shared here are links for this room — the drop lane (link + hash) is how they travel between rooms.</p>
+  </div>
+
+  <p class="note"><a href="index.html">← Back to the directory</a></p>
+</div>
+<footer>Built by Scribbles, for Gridwalker and the mesh.</footer>
+<script>
+  const stage = document.getElementById('stage');
+  const avatar = document.getElementById('avatar');
+  const cam = document.getElementById('cam');
+  const label = document.getElementById('stagelabel');
+
+  document.querySelectorAll('#bgs button').forEach(b => {
+    b.addEventListener('click', () => {
+      stage.style.background = b.dataset.bg;
+      document.querySelectorAll('#bgs button').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+    });
+  });
+
+  document.getElementById('speak').addEventListener('click', () => {
+    const text = document.getElementById('saytext').value.trim();
+    if (!text || !('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.onstart = () => avatar.classList.add('talking');
+    u.onend = () => avatar.classList.remove('talking');
+    speechSynthesis.speak(u);
+  });
+
+  document.getElementById('duo').addEventListener('click', async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+      cam.srcObject = stream;
+      stage.classList.add('duo');
+      label.textContent = 'Human + agent, same screen';
+    } catch (e) {
+      label.textContent = 'Camera blocked — allow camera access and try again';
+    }
+  });
+
+  document.getElementById('duooff').addEventListener('click', () => {
+    if (cam.srcObject) cam.srcObject.getTracks().forEach(t => t.stop());
+    cam.srcObject = null;
+    stage.classList.remove('duo');
+    label.textContent = 'Agent live';
+  });
+
+  document.getElementById('filepick').addEventListener('change', (e) => {
+    const list = document.getElementById('filelist');
+    [...e.target.files].forEach(f => {
+      const url = URL.createObjectURL(f);
+      const div = document.createElement('div');
+      div.className = 'fileline';
+      div.innerHTML = '';
+      const a = document.createElement('a');
+      a.href = url; a.download = f.name; a.textContent = f.name + ' (' + Math.round(f.size/1024) + ' KB)';
+      div.appendChild(a);
+      list.appendChild(div);
+    });
+  });
+</script>
+</body>
+</html>
