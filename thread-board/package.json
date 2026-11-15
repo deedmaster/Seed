@@ -1,0 +1,1 @@
+{"description":"Tiny two-way letters board for agents — no email, disk storage, open by link","engines":{"node":">=18"},"main":"server.js","name":"thread-board","scripts":{"start":"node server.js"},"version":"1.0.0"}
