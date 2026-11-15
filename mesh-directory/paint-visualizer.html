@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paint It — see your room in any color | Gridwalker Mesh</title>
+<style>
+  :root{--ink:#1c1c1c;--paper:#f6f2ea;--card:#fff;--accent:#2b4258;--line:#ddd5c6}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--paper);color:var(--ink)}
+  header{background:var(--accent);color:#fff;padding:14px 18px}
+  header h1{margin:0;font-size:22px}
+  header p{margin:4px 0 0;opacity:.85;font-size:14px}
+  main{max-width:1060px;margin:0 auto;padding:16px}
+  .grid{display:grid;grid-template-columns:1.5fr 1fr;gap:16px}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .card h2{margin:0 0 10px;font-size:17px}
+  canvas{width:100%;border:1px solid var(--line);border-radius:8px;background:#eee;touch-action:none;cursor:crosshair;display:block}
+  .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+  button{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:8px;padding:8px 12px;font-size:14px;cursor:pointer}
+  button.ghost{background:#fff;color:var(--accent)}
+  label{font-size:13px}
+  input[type=range]{width:140px}
+  input[type=color]{width:44px;height:34px;border:1px solid var(--line);border-radius:6px;background:#fff;padding:2px}
+  input[type=number],input[type=text]{padding:8px;border:1px solid var(--line);border-radius:8px;font-size:14px}
+  .swatches{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .sw{border:1px solid var(--line);border-radius:8px;overflow:hidden;cursor:pointer;text-align:left;padding:0;background:#fff}
+  .sw.on{outline:3px solid var(--accent)}
+  .sw .chip{height:44px}
+  .sw .nm{font-size:11px;padding:5px 6px;line-height:1.3}
+  .sw .nm b{display:block;font-size:12px}
+  .detail{font-size:14px;line-height:1.55}
+  .detail b{color:var(--accent)}
+  .muted{color:#666;font-size:12.5px;line-height:1.5}
+  .pill{display:inline-block;background:#eef2f5;border:1px solid #cfdae2;border-radius:20px;padding:3px 10px;font-size:12px;margin:2px 4px 2px 0}
+  a{color:var(--accent)}
+  footer{max-width:1060px;margin:0 auto;padding:0 16px 24px;color:#666;font-size:12.5px;line-height:1.6}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎨 Paint It — see your room in any color</h1>
+  <p>Upload a photo of your room (or use the demo room), pick a paint, brush it on the wall. Then get the color name, what it costs, and where to buy it. Free, no account, nothing leaves your device — the photo never uploads anywhere.</p>
+</header>
+<main>
+  <div class="grid">
+    <section class="card">
+      <h2>1 · Your room</h2>
+      <canvas id="c" width="900" height="560"></canvas>
+      <div class="row">
+        <label>📷 <input type="file" id="up" accept="image/*"></label>
+        <button class="ghost" id="demo">Demo room</button>
+        <button class="ghost" id="orig">Hold: original</button>
+        <button class="ghost" id="dl">Download painted pic</button>
+      </div>
+      <div class="row">
+        <label>Brush size <input type="range" id="bs" min="10" max="140" value="60"></label>
+        <label>Paint strength <input type="range" id="op" min="20" max="100" value="75"></label>
+        <button class="ghost" id="undo">Undo</button>
+        <button class="ghost" id="clear">Clear paint</button>
+      </div>
+      <p class="muted">Drag across a wall to paint it. The brush uses a multiply blend so the wall's shadows and texture still show through — like real paint. Undo steps back one stroke at a time.</p>
+      <h2>2 · Say what you want to exist <span class="pill">v1: demo rooms · v2: generate from a sentence</span></h2>
+      <div class="row">
+        <input type="text" id="wish" placeholder="e.g. a small bedroom with one big window" style="flex:1;min-width:220px">
+        <button id="wishgo">Show it</button>
+      </div>
+      <p class="muted">Today the page draws three demo rooms from your words (bedroom / living room / kitchen — anything else loads the living room). Turning a sentence into a brand-new picture is the next build; it needs an image service, and that's on the list.</p>
+    </section>
+
+    <section class="card">
+      <h2>3 · Pick your paint</h2>
+      <div class="row">
+        <label>Custom color <input type="color" id="pick" value="#d1c9be"></label>
+        <span id="pickname" class="muted">your own mix</span>
+      </div>
+      <div class="swatches" id="sw"></div>
+      <div class="detail" id="detail" style="margin-top:12px"></div>
+      <h2 style="margin-top:16px">4 · How much do you need?</h2>
+      <div class="row">
+        <label>Wall area <input type="number" id="sqft" value="400" min="10" style="width:90px"> sq ft</label>
+        <label>Coats <input type="number" id="coats" value="2" min="1" max="3" style="width:60px"></label>
+        <button id="calc">Work it out</button>
+      </div>
+      <p class="detail" id="calcOut"></p>
+      <p class="muted">Prices are Nov 2026 retail ranges from the brands' own pages and paint guides — check your store on the day, sales move them a lot (Sherwin-Williams runs 30–40% off sales often). One gallon covers about 350–450 sq ft per coat.</p>
+    </section>
+  </div>
+</main>
+<footer>
+  Built by Scribbles for the Gridwalker mesh. Paint swatch colors are close visual matches, not official digital chips — always check the real chip in the store before you buy. Prices: Benjamin Moore Regal Select $78.99–$84.99/gal, ben $60.99/gal, Aura $95–$110+/gal (benjaminmoore.com, Nov 2026); Sherwin-Williams Emerald $75–$95/gal; Behr Marquee $45–$65/gal, Dynasty $55–$65/gal, Premium Plus $30–$35/gal (2026 paint guides).
+</footer>
+
+<script>
+const cv=document.getElementById('c'), ctx=cv.getContext('2d');
+let base=null;           // Image of the room (photo or demo)
+let strokes=[];          // {color,size,opacity,pts:[{x,y}]}
+let redoStack=[];
+let painting=false, cur=null;
+let scene='living';
+
+const PAINTS=[
+ {brand:'Sherwin-Williams',line:'Emerald',name:'Agreeable Gray',code:'SW 7029',hex:'#D1C9BE',price:'$75–$95 / gal',buy:'Sherwin-Williams stores',url:'https://www.sherwin-williams.com',hue:'Warm greige — gray with a beige heartbeat. The most-recommended resale color in the US.',mix:'Tinted at the counter from a white base using code SW 7029. For fabric dye matching: warm gray family, yellow-oxide + raw umber undertone.'},
+ {brand:'Sherwin-Williams',line:'Emerald',name:'Accessible Beige',code:'SW 7036',hex:'#D1C3B2',price:'$75–$95 / gal',buy:'Sherwin-Williams stores',url:'https://www.sherwin-williams.com',hue:'Warm beige-gray, a touch deeper than Agreeable Gray. Loves natural light.',mix:'Counter-tinted, code SW 7036. Dye family: warm greige.'},
+ {brand:'Sherwin-Williams',line:'Emerald',name:'Alabaster',code:'SW 7008',hex:'#EDEBE6',price:'$75–$95 / gal',buy:'Sherwin-Williams stores',url:'https://www.sherwin-williams.com',hue:'Soft warm white, not stark. The safe white that never looks hospital.',mix:'Counter-tinted, code SW 7008. Dye family: warm white.'},
+ {brand:'Sherwin-Williams',line:'Emerald',name:'Naval',code:'SW 6244',hex:'#2B4258',price:'$75–$95 / gal',buy:'Sherwin-Williams stores',url:'https://www.sherwin-williams.com',hue:'Deep navy with a green undertone. One accent wall and the whole room changes.',mix:'Counter-tinted, code SW 6244. Needs 2 coats over light walls. Dye family: deep navy.'},
+ {brand:'Sherwin-Williams',line:'Emerald',name:'Sea Salt',code:'SW 6204',hex:'#C9D5CE',price:'$75–$95 / gal',buy:'Sherwin-Williams stores',url:'https://www.sherwin-williams.com',hue:'Pale green-gray that shifts blue-green through the day. Calm, coastal.',mix:'Counter-tinted, code SW 6204. Dye family: pale sea green.'},
+ {brand:'Sherwin-Williams',line:'Emerald',name:'Repose Gray',code:'SW 7015',hex:'#C9C9C5',price:'$75–$95 / gal',buy:'Sherwin-Williams stores',url:'https://www.sherwin-williams.com',hue:'True cool gray, no beige. Clean and modern, pairs with anything.',mix:'Counter-tinted, code SW 7015. Dye family: neutral gray.'},
+ {brand:'Benjamin Moore',line:'Regal Select',name:'Swiss Coffee',code:'OC-45',hex:'#E6DFD3',price:'$79–$85 / gal',buy:'Benjamin Moore dealers',url:'https://www.benjaminmoore.com',hue:'Creamy warm off-white. Works in any light, crisp against white trim.',mix:'Counter-tinted, code OC-45. Dye family: warm cream.'},
+ {brand:'Benjamin Moore',line:'Regal Select',name:'Hale Navy',code:'HC-154',hex:'#3B4B5F',price:'$79–$85 / gal',buy:'Benjamin Moore dealers',url:'https://www.benjaminmoore.com',hue:'Classic deep navy, a touch softer than Naval. Timeless on cabinets and walls.',mix:'Counter-tinted, code HC-154. Dye family: deep navy.'},
+ {brand:'Benjamin Moore',line:'Regal Select',name:'White Dove',code:'OC-17',hex:'#EFE9DC',price:'$79–$85 / gal',buy:'Benjamin Moore dealers',url:'https://www.benjaminmoore.com',hue:'The soft white every painter keeps in the van. Warm, never yellow.',mix:'Counter-tinted, code OC-17. Dye family: soft white.'},
+ {brand:'Benjamin Moore',line:'ben',name:'Chantilly Lace',code:'OC-65',hex:'#F0EDE4',price:'~$61 / gal',buy:'Benjamin Moore dealers',url:'https://www.benjaminmoore.com',hue:'The cleanest white in the library. Bright without going blue.',mix:'Counter-tinted, code OC-65. Dye family: clean white.'},
+ {brand:'Behr',line:'Marquee',name:'Cracked Pepper',code:'PPU18-01',hex:'#44484A',price:'$45–$65 / gal',buy:'Home Depot',url:'https://www.behr.com',hue:'Soft black with a warm edge. One wall of this makes everything else pop.',mix:'Counter-tinted, code PPU18-01. One-coat coverage claim on light-to-medium changes. Dye family: soft black.'},
+ {brand:'Behr',line:'Marquee',name:'Polar Bear',code:'75',hex:'#EAE9E3',price:'$45–$65 / gal',buy:'Home Depot',url:'https://www.behr.com',hue:'Bright white with the faintest warmth. The budget-friendly fresh start.',mix:'Counter-tinted, code 75. Dye family: bright white.'},
+];
+
+let sel=PAINTS[0];
+const swEl=document.getElementById('sw'), detailEl=document.getElementById('detail');
+PAINTS.forEach((p,i)=>{
+  const b=document.createElement('button'); b.className='sw'+(i===0?' on':'');
+  b.innerHTML=`<div class="chip" style="background:${p.hex}"></div><div class="nm"><b>${p.name}</b>${p.brand} · ${p.code}</div>`;
+  b.onclick=()=>{sel=p;document.querySelectorAll('.sw').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+    document.getElementById('pick').value=p.hex; renderDetail();};
+  swEl.appendChild(b);
+});
+document.getElementById('pick').addEventListener('input',e=>{
+  sel={brand:'Your mix',line:'Custom',name:'Custom color',code:e.target.value.toUpperCase(),hex:e.target.value,price:'—',buy:'Take the hex to any paint counter',url:'',hue:'A color you picked yourself. Any paint counter can match a hex code.',mix:'Ask the counter to color-match the hex '+e.target.value.toUpperCase()+' — they scan it and tint a base to match.'};
+  document.getElementById('pickname').textContent=e.target.value.toUpperCase();
+  renderDetail();
+});
+function renderDetail(){
+  detailEl.innerHTML=`<b>${sel.name}</b> · ${sel.brand} ${sel.line} · ${sel.code}<br>
+  ${sel.hue}<br>
+  <b>Price:</b> ${sel.price} &nbsp; <b>Buy:</b> ${sel.buy} ${sel.url?`· <a href="${sel.url}" target="_blank" rel="noopener">${sel.url.replace('https://www.','')}</a>`:''}<br>
+  <b>How to get it:</b> ${sel.mix}`;
+}
+renderDetail();
+
+function drawDemo(kind){
+  scene=kind;
+  const g=document.createElement('canvas'); g.width=900; g.height=560;
+  const x=g.getContext('2d');
+  // room shell
+  x.fillStyle = kind==='kitchen' ? '#e8e0d0' : kind==='bedroom' ? '#ddd3e6' : '#e6ded2';
+  x.fillRect(0,0,900,560);
+  // back wall
+  x.fillStyle = kind==='kitchen' ? '#f3ede0' : kind==='bedroom' ? '#e9e2f0' : '#f1ece2';
+  x.fillRect(60,40,780,340);
+  // floor
+  x.fillStyle='#b08d5f'; x.fillRect(0,380,900,180);
+  x.strokeStyle='rgba(0,0,0,.12)'; for(let i=0;i<900;i+=60){x.beginPath();x.moveTo(i,380);x.lineTo(i-40,560);x.stroke();}
+  // window
+  x.fillStyle='#9fc3dd'; x.fillRect(120,90,220,200);
+  x.fillStyle='#fff'; x.fillRect(222,90,8,200); x.fillRect(120,186,220,8);
+  x.fillStyle='#f6e27a'; x.beginPath(); x.arc(300,140,26,0,7); x.fill();
+  // door
+  x.fillStyle='#7a5c3e'; x.fillRect(640,110,140,270);
+  x.fillStyle='#5d4630'; x.beginPath(); x.arc(755,250,8,0,7); x.fill();
+  if(kind==='living'){
+    // sofa
+    x.fillStyle='#5b6b7a'; x.fillRect(300,300,280,90); x.fillRect(280,260,320,60);
+    x.fillStyle='#46555f'; x.fillRect(300,300,130,50); x.fillRect(450,300,130,50);
+    // rug
+    x.fillStyle='#a34d4d'; x.fillRect(240,430,420,90);
+    // plant
+    x.fillStyle='#3e7a4e'; x.beginPath(); x.arc(820,330,40,0,7); x.fill();
+    x.fillStyle='#b5651d'; x.fillRect(800,360,40,30);
+  } else if(kind==='bedroom'){
+    x.fillStyle='#8a6d8f'; x.fillRect(300,280,320,110); x.fillRect(280,230,360,70);
+    x.fillStyle='#fff'; x.fillRect(310,240,90,50); x.fillRect(500,240,90,50);
+    x.fillStyle='#c98f5f'; x.fillRect(660,330,90,60);
+    x.fillStyle='#a34d4d'; x.fillRect(240,430,420,90);
+  } else {
+    // kitchen counters
+    x.fillStyle='#6b7a8c'; x.fillRect(280,300,340,80);
+    x.fillStyle='#e8e8e8'; x.fillRect(270,290,360,14);
+    x.fillStyle='#3e7a4e'; x.beginPath(); x.arc(330,260,26,0,7); x.fill();
+    x.fillStyle='#333'; x.fillRect(560,330,90,50);
+  }
+  base=g; strokes=[]; redraw();
+}
+function redraw(){
+  ctx.clearRect(0,0,900,560);
+  if(base) ctx.drawImage(base,0,0);
+  for(const s of strokes){
+    ctx.save();
+    ctx.globalCompositeOperation='multiply';
+    ctx.globalAlpha=s.opacity;
+    ctx.strokeStyle=s.color; ctx.lineWidth=s.size; ctx.lineCap='round'; ctx.lineJoin='round';
+    ctx.beginPath();
+    s.pts.forEach((p,i)=> i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+    ctx.stroke(); ctx.restore();
+  }
+}
+function pos(e){
+  const r=cv.getBoundingClientRect();
+  const t=e.touches?e.touches[0]:e;
+  return {x:(t.clientX-r.left)*900/r.width, y:(t.clientY-r.top)*560/r.height};
+}
+cv.addEventListener('pointerdown',e=>{painting=true;cur={color:sel.hex,size:+document.getElementById('bs').value,opacity:+document.getElementById('op').value/100,pts:[pos(e)]};strokes.push(cur);cv.setPointerCapture(e.pointerId);});
+cv.addEventListener('pointermove',e=>{if(!painting)return;cur.pts.push(pos(e));redraw();});
+['pointerup','pointerleave'].forEach(ev=>cv.addEventListener(ev,()=>{painting=false;cur=null;}));
+document.getElementById('undo').onclick=()=>{strokes.pop();redraw();};
+document.getElementById('clear').onclick=()=>{strokes=[];redraw();};
+document.getElementById('demo').onclick=()=>drawDemo(scene);
+document.getElementById('up').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const img=new Image();
+  img.onload=()=>{
+    const g=document.createElement('canvas'); g.width=900; g.height=560;
+    const x=g.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,900,560);
+    const s=Math.max(900/img.width,560/img.height), w=img.width*s, h=img.height*s;
+    x.drawImage(img,(900-w)/2,(560-h)/2,w,h);
+    base=g; strokes=[]; redraw();
+  };
+  img.src=URL.createObjectURL(f);
+});
+const origBtn=document.getElementById('orig');
+origBtn.addEventListener('pointerdown',()=>{ctx.clearRect(0,0,900,560); if(base) ctx.drawImage(base,0,0);});
+origBtn.addEventListener('pointerup',redraw);
+origBtn.addEventListener('pointerleave',redraw);
+document.getElementById('dl').onclick=()=>{
+  redraw();
+  const a=document.createElement('a'); a.download='painted-room.png'; a.href=cv.toDataURL('image/png'); a.click();
+};
+document.getElementById('wishgo').onclick=()=>{
+  const w=(document.getElementById('wish').value||'').toLowerCase();
+  if(w.includes('bed')) drawDemo('bedroom');
+  else if(w.includes('kitchen')) drawDemo('kitchen');
+  else drawDemo('living');
+};
+document.getElementById('calc').onclick=()=>{
+  const area=+document.getElementById('sqft').value||0, coats=+document.getElementById('coats').value||2;
+  const gal=Math.ceil(area*coats/400*10)/10;
+  const lo=Math.round(gal*30), hi=Math.round(gal*110);
+  document.getElementById('calcOut').innerHTML=
+    `<b>${area} sq ft × ${coats} coat${coats>1?'s':''} ≈ ${gal} gallon${gal!==1?'s':''}</b> (at ~400 sq ft per gallon per coat).<br>
+     Rough cost for ${sel.name} (${sel.brand} ${sel.line}): <b>about $${Math.round(gal*45)}–$${Math.round(gal*95)}</b> at the ranges above — cheapest with Behr Premium Plus (~$30–35/gal), priciest with Benjamin Moore Aura (~$95–110/gal). Buy it at ${sel.buy}.`;
+};
+drawDemo('living');
+</script>
+</body>
+</html>
