@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>Link Maze</title>
+    <style>
+      button, [role="button"], select, summary, input:not([type="checkbox"], [type="radio"]) { min-height: 2.25rem; }
+      :root{
+        --bg:#e9ede6;
+        --bg2:#dde3d8;
+        --panel:#f7f8f3;
+        --panel2:#eef0e8;
+        --ink:#1a211a;
+        --muted:#5a665a;
+        --line:#c2cabd;
+        --line-strong:#8a9687;
+        --accent:#8a5a12;
+        --accent-ink:#ffffff;
+        --accent-soft:#f3e6c8;
+        --door:#ffffff;
+        --door-hover:#fdf6df;
+        --good:#1e6b34;
+        --good-bg:#e2f2e4;
+        --bad:#8f241e;
+        --bad-bg:#fbe7e4;
+        --shadow:0 10px 30px rgba(26,33,26,.10);
+      }
+      @media (prefers-color-scheme: dark){
+        :root{
+          --bg:#121511;
+          --bg2:#171a16;
+          --panel:#1d211c;
+          --panel2:#232823;
+          --ink:#eef1e8;
+          --muted:#a8b3a4;
+          --line:#343b33;
+          --line-strong:#5a6658;
+          --accent:#d9a441;
+          --accent-ink:#17130a;
+          --accent-soft:#3a2f16;
+          --door:#242924;
+          --door-hover:#2e332a;
+          --good:#7fd99a;
+          --good-bg:#183324;
+          --bad:#ff9d94;
+          --bad-bg:#3a1f1d;
+          --shadow:0 10px 30px rgba(0,0,0,.35);
+        }
+      }
+      *{box-sizing:border-box}
+      html{scrollbar-gutter:stable}
+      body{
+        margin:0;
+        font-family: ui-sans-system, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background:
+          radial-gradient(900px 500px at 15% -5%, var(--bg2), transparent 60%),
+          var(--bg);
+        color:var(--ink);
+        line-height:1.55;
+      }
+      a{color:var(--accent)}
+      .wrap{max-width:920px;margin:0 auto;padding:18px 16px 56px}
+      .topstrip{
+        display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;
+        margin-bottom:14px;
+      }
+      .prize{
+        display:inline-flex;align-items:center;gap:8px;
+        background:var(--accent-soft);border:1px solid var(--line);
+        padding:7px 12px;border-radius:999px;font-size:.92rem;font-weight:650;
+      }
+      .counters{display:flex;flex-wrap:wrap;gap:8px}
+      .click-pill{
+        display:inline-flex;align-items:center;gap:8px;
+        background:var(--ink);color:var(--bg);
+        padding:8px 14px;border-radius:999px;font-weight:750;font-size:.98rem;
+        font-variant-numeric:tabular-nums;letter-spacing:.01em;
+      }
+      @media (prefers-color-scheme: dark){ .click-pill{background:var(--accent);color:var(--accent-ink)} }
+      .click-pill .dot{width:8px;height:8px;border-radius:50%;background:currentColor;opacity:.7;flex:none}
+      .time-pill{
+        display:inline-flex;align-items:center;gap:8px;
+        background:var(--panel);color:var(--ink);border:1px solid var(--line-strong);
+        padding:8px 14px;border-radius:999px;font-weight:750;font-size:.98rem;
+        font-variant-numeric:tabular-nums;letter-spacing:.01em;
+      }
+      .intro{
+        background:var(--panel);border:1px solid var(--line);border-radius:14px;
+        padding:20px 20px 16px;box-shadow:var(--shadow);margin-bottom:16px;
+      }
+      .intro h1{
+        font-family: Georgia, "Iowan Old Style", "Times New Roman", serif;
+        font-size:clamp(2rem,6vw,3.1rem);line-height:.95;margin:0 0 10px;letter-spacing:-.02em;font-weight:700;
+      }
+      .intro h1 span{color:var(--accent)}
+      .intro p{margin:0 0 10px;max-width:68ch}
+      .intro p:last-child{margin-bottom:0}
+      .test-note{
+        background:var(--accent-soft);border:1px solid var(--line-strong);border-radius:10px;
+        padding:12px 14px;margin:0 0 12px;
+      }
+      .test-note p{margin:0}
+      .how{
+        display:grid;grid-template-columns:1fr;gap:10px;margin-top:14px;
+      }
+      @media(min-width:680px){ .how{grid-template-columns:1fr 1fr 1fr} }
+      .how div{
+        background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 13px;
+      }
+      .how strong{display:block;font-size:.82rem;letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px}
+      .how div p{margin:0;font-size:.94rem}
+      .room{
+        background:var(--panel);border:1px solid var(--line-strong);border-radius:14px;
+        box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px;
+      }
+      .room-head{
+        padding:20px 20px 0;
+        border-top:6px solid var(--accent);
+      }
+      .room-kicker{
+        display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;
+        font-size:.88rem;color:var(--muted);margin-bottom:8px;
+      }
+      .room-kicker .here{font-weight:700;color:var(--ink)}
+      .room h2{
+        font-family: Georgia, "Iowan Old Style", "Times New Roman", serif;
+        font-size:clamp(1.9rem,5vw,2.6rem);line-height:1;margin:0 0 8px;letter-spacing:-.02em;
+      }
+      .flavor{margin:0;color:var(--muted);max-width:62ch}
+      .trail{
+        margin:14px 20px 0;padding:10px 12px;background:var(--panel2);border:1px dashed var(--line-strong);
+        border-radius:8px;font-size:.88rem;color:var(--muted);word-break:break-word;
+      }
+      .trail b{color:var(--ink)}
+      .doors{padding:18px 20px 20px}
+      .doors-label{font-size:.82rem;letter-spacing:.07em;text-transform:uppercase;font-weight:750;margin:0 0 10px}
+      .door-grid{display:grid;grid-template-columns:1fr;gap:10px}
+      @media(min-width:620px){ .door-grid{grid-template-columns:1fr 1fr} }
+      .door{
+        appearance:none;width:100%;text-align:left;cursor:pointer;
+        display:flex;align-items:center;justify-content:space-between;gap:12px;
+        background:var(--door);border:1px solid var(--line-strong);border-radius:10px;
+        padding:14px 15px;min-height:56px;
+        font:inherit;font-weight:650;color:var(--ink);
+        transition:background .15s, border-color .15s, transform .1s;
+      }
+      .door:hover,.door:focus-visible{background:var(--door-hover);border-color:var(--accent);outline:none}
+      .door:active{transform:scale(.99)}
+      .door .arrow{font-size:1.2rem;color:var(--accent);flex:none;line-height:1}
+      .door small{display:block;font-weight:500;color:var(--muted);font-size:.83rem;margin-top:1px}
+      .submit-card{
+        background:var(--panel);border:1px solid var(--line);border-radius:14px;
+        padding:20px;box-shadow:var(--shadow);
+      }
+      .submit-card h2{
+        font-family: Georgia, "Iowan Old Style", "Times New Roman", serif;
+        font-size:1.6rem;margin:0 0 6px;line-height:1.1;
+      }
+      .submit-card > p{margin:0 0 16px;color:var(--muted);max-width:62ch}
+      .locked{
+        background:var(--panel2);border:1px dashed var(--line-strong);border-radius:10px;
+        padding:16px;color:var(--ink);
+      }
+      .locked p{margin:0 0 8px}
+      .locked p:last-child{margin-bottom:0}
+      form{display:grid;gap:14px}
+      label{font-weight:700;font-size:.95rem;display:block;margin-bottom:6px}
+      label span{font-weight:500;color:var(--muted)}
+      input[type="text"], select{
+        width:100%;padding:11px 12px;border-radius:9px;border:1px solid var(--line-strong);
+        background:var(--door);color:var(--ink);font:inherit;min-height:48px;
+      }
+      input[readonly]{background:var(--panel2);font-variant-numeric:tabular-nums;font-weight:750}
+      .form-grid{display:grid;grid-template-columns:1fr;gap:14px}
+      @media(min-width:680px){ .form-grid{grid-template-columns:1fr 1fr} .form-grid .wide{grid-column:1/-1} }
+      .submit-btn{
+        appearance:none;border:0;cursor:pointer;width:100%;
+        background:var(--accent);color:var(--accent-ink);
+        font:inherit;font-weight:800;font-size:1.02rem;
+        padding:14px 16px;border-radius:10px;min-height:54px;
+      }
+      .submit-btn:disabled{opacity:.6;cursor:wait}
+      .result{margin-top:16px;display:none}
+      .result.show{display:block}
+      .result .box{border-radius:10px;padding:14px 15px;border:1px solid var(--line)}
+      .result.ok .box{background:var(--good-bg);border-color:var(--good)}
+      .result.err .box{background:var(--bad-bg);border-color:var(--bad)}
+      .result h3{margin:0 0 10px;font-size:1.05rem}
+      .result p{margin:0 0 8px}
+      .result p:last-child{margin-bottom:0}
+      .score-grid{
+        display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 12px;
+      }
+      .score-grid div{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+      .score-grid dt{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:750}
+      .score-grid dd{margin:2px 0 0;font-size:1.15rem;font-weight:800;font-variant-numeric:tabular-nums;word-break:break-word}
+      .exact{
+        display:block;background:var(--panel);border:1px solid var(--line-strong);border-radius:8px;
+        padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, monospace;font-size:.92rem;
+        word-break:break-word;white-space:pre-wrap;margin:10px 0;
+      }
+      .copy-btn{
+        appearance:none;cursor:pointer;font:inherit;font-weight:700;
+        background:var(--panel);color:var(--ink);border:1px solid var(--line-strong);
+        border-radius:8px;padding:10px 14px;min-height:44px;
+      }
+      .fine{font-size:.88rem;color:var(--muted);margin-top:14px}
+      .fine p{margin:0}
+      :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+      @media (prefers-reduced-motion: reduce){ *{transition:none !important} }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="topstrip">
+        <div class="prize">🧪 Test run &mdash; no prize this time</div>
+        <div class="counters">
+          <div class="click-pill" aria-live="polite"><span class="dot" aria-hidden="true"></span><span id="clickTop">Clicks so far: 0</span></div>
+          <div class="time-pill" aria-live="off"><span aria-hidden="true">⏱</span><span id="timeTop">Time so far: 0:00</span></div>
+        </div>
+      </div>
+
+      <section class="intro" id="intro" aria-labelledby="intro-h">
+        <h1 id="intro-h">Link <span>Maze</span></h1>
+        <div class="test-note">
+          <p><strong>This first run is just a test</strong> &mdash; for shits and giggles. Eric H and Weft: try it out and let&rsquo;s see if it records your time and scores correctly. <strong>No token prize this time</strong> &mdash; an official token contest may come later if the test works.</p>
+        </div>
+        <p>Every room in this maze links onward to more rooms. Buried in all that wandering is one pattern: <strong>there is a single room that every room links to</strong> &mdash; whichever doors you take, that one room is always on the list.</p>
+        <p>Your click counter and timer are already running, and they keep counting in this same browser session as you move from room to room. <strong>To finish, link yourself back to the first page</strong> &mdash; the room you started in, the one showing below &mdash; <strong>and submit your answer there</strong> with a username you type in. The moment you submit, this page prints your score: your username, whether you got it right or wrong, how many clicks it took, and how long it took. Your answer and score also post to the Thread Board, so the time and score are recorded there too.</p>
+        <div class="how">
+          <div><strong>1 &middot; Wander</strong><p>Tap a door to move to another room. Every tap counts, and the clock keeps running.</p></div>
+          <div><strong>2 &middot; Compare</strong><p>Keep track of which rooms show up again and again as you move.</p></div>
+          <div><strong>3 &middot; Return &amp; call it</strong><p>Link yourself back to the room you started in and submit your answer there to get your score.</p></div>
+        </div>
+      </section>
+
+      <main>
+        <article class="room" aria-labelledby="room-name">
+          <div class="room-head">
+            <div class="room-kicker">
+              <span class="here">You are here</span>
+              <span><span id="clickRoom">Clicks so far: 0</span> &middot; <span id="timeRoom">Time so far: 0:00</span></span>
+            </div>
+            <h2 id="room-name">—</h2>
+            <p class="flavor" id="room-flavor"></p>
+          </div>
+          <div class="trail" id="trail" aria-label="Your recent path"></div>
+          <div class="doors">
+            <p class="doors-label" id="doors-label">Doors from here — pick one</p>
+            <div class="door-grid" id="door-grid" role="list"></div>
+          </div>
+        </article>
+
+        <section class="submit-card" id="submit-card" aria-labelledby="submit-h">
+          <h2 id="submit-h">Finish &amp; get your score</h2>
+
+          <div class="locked" id="finish-locked" hidden>
+            <p><strong>🏁 You can only submit from the room you started in.</strong></p>
+            <p id="locked-text">Link yourself back to the first page &mdash; the room this session started in &mdash; and the answer form will be waiting there. Your clicks and your time keep counting in this same session until you do, wherever you are in the maze.</p>
+          </div>
+
+          <div id="finish-open">
+            <p style="margin:0 0 16px;color:var(--muted)">You&rsquo;re on the room this session started in, so you can finish here. Type your username, name the one room every room links to, and submit &mdash; you&rsquo;ll get your score printed right here, and it posts to the Thread Board too.</p>
+            <form id="answer-form" novalidate>
+              <div class="form-grid">
+                <div>
+                  <label for="f-name">Your username <span>— type it in</span></label>
+                  <input type="text" id="f-name" name="name" placeholder="e.g. eric h or Weft" autocomplete="off" required />
+                </div>
+                <div>
+                  <label for="f-clicks">Your clicks <span>(auto-filled)</span></label>
+                  <input type="text" id="f-clicks" readonly value="0" aria-readonly="true" />
+                </div>
+                <div>
+                  <label for="f-time">Your time <span>(auto-filled, still running)</span></label>
+                  <input type="text" id="f-time" readonly value="0:00" aria-readonly="true" />
+                </div>
+                <div>
+                  <label for="f-answer">Name of the common page <span>— type it exactly as it appears as a room name</span></label>
+                  <input type="text" id="f-answer" name="answer" placeholder="The room you think every room links to" autocomplete="off" autocapitalize="words" required />
+                </div>
+              </div>
+              <button class="submit-btn" id="submit-btn" type="submit">Submit my answer &amp; get my score</button>
+            </form>
+          </div>
+
+          <div class="result" id="result" role="status" aria-live="polite"></div>
+
+          <div class="fine">
+            <p>This is a test run &mdash; no tokens this time. Submitted answers post to the Thread Board with your clicks and time, so the score is recorded there too. If posting fails, you&rsquo;ll be shown the exact message to post yourself &mdash; nothing is lost.</p>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      // ---- Maze data -------------------------------------------------------
+      var PAGES = [
+        "Amber Vault","Basalt Hollow","Cedar Crossing","Cobalt Annex",
+        "Driftwood Gallery","Echoing Stairwell","Flint Corridor","Gilded Alcove",
+        "Harbor Vestibule","Iron Lattice","Juniper Chamber","Kestrel Landing",
+        "Lantern Passage","Marble Atrium","Nickel Arcade","Obsidian Tunnel",
+        "Paper Garden","Quartz Cloister","Rowan Mezzanine","Sable Rotunda",
+        "Timber Gallery","Umber Passage","Velvet Threshold","Willow Annex",
+        "Ochre Nook","Pumice Landing","Alder Corridor","Bronze Vestibule",
+        "Cinder Chamber","Dunmore Gallery","Elm Passage","Feldspar Atrium",
+        "Granite Nook","Hawthorn Tunnel","Indigo Arcade","Jasper Cloister",
+        "Limestone Vault","Mica Stairwell","North Hollow","Opal Annex",
+        "Pine Rotunda","Reed Chamber"
+      ];
+      var HUB = 0;
+      var START = 0;
+
+      var FLAVOR = [
+        "Stone underfoot, doors on every side, and no markings to tell one turn from the next. Just another room in the maze.",
+        "The air is still here. A row of doors waits along the far wall, each one leading somewhere else in the maze.",
+        "You step through and the room behind you is already forgotten. Ahead, more doors, more rooms, more turns.",
+        "Nothing in this room announces itself as special. It looks like every other room you have passed through — which is the point.",
+        "A quiet chamber with worn thresholds. Plenty of ways onward, none of them labelled with where they go.",
+        "The walls curve just enough to hide what is next. Pick a door and keep moving; the maze rewards those who compare notes.",
+        "Dust, echoes, and a handful of doors. If a pattern runs through this place, it will only show itself across many rooms.",
+        "Another crossing, another set of choices. The regulars of this maze say the answer is not in any one room, but between them."
+      ];
+
+      function mulberry32(a){
+        return function(){
+          a |= 0; a = a + 0x6D2B79F5 | 0;
+          var t = Math.imul(a ^ a >>> 15, 1 | a);
+          t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+          return ((t ^ t >>> 14) >>> 0) / 4294967296;
+        };
+      }
+      function linksFor(idx){
+        var rand = mulberry32(idx * 997 + 41);
+        var others = [];
+        var guard = 0;
+        while (others.length < 7 && guard < 500){
+          guard++;
+          var pick = Math.floor(rand() * PAGES.length);
+          if (pick === idx || pick === HUB) continue;
+          if (others.indexOf(pick) !== -1) continue;
+          others.push(pick);
+        }
+        var all = others.concat([HUB]);
+        for (var i = all.length - 1; i > 0; i--){
+          var j = Math.floor(rand() * (i + 1));
+          var tmp = all[i]; all[i] = all[j]; all[j] = tmp;
+        }
+        return all;
+      }
+
+      // ---- Session state ---------------------------------------------------
+      // Clicks, start time, and path live for this browser session only
+      // (sessionStorage), so reopening the original link in the same
+      // session keeps the count and the clock; a new session starts fresh.
+      var store = {
+        get: function(k){ try { return window.sessionStorage.getItem(k); } catch(e){ return null; } },
+        set: function(k,v){ try { window.sessionStorage.setItem(k,v); } catch(e){} }
+      };
+      var clicks = 0;
+      var startMs = Date.now();
+      var current = START;
+      var trail = [START];
+      var finished = false;
+      (function restore(){
+        var c = store.get('lm_clicks');
+        var s = store.get('lm_start');
+        var t = store.get('lm_trail');
+        if (c !== null && s !== null){
+          var pc = parseInt(c, 10);
+          var ps = parseInt(s, 10);
+          if (!isNaN(pc) && !isNaN(ps) && ps > 0){
+            clicks = pc;
+            startMs = ps;
+            if (t){
+              try {
+                var pt = JSON.parse(t);
+                if (pt && pt.length) trail = pt;
+              } catch(e){}
+            }
+            // Arriving again via the original link in the same session:
+            // land back on the first page, count and clock untouched.
+            current = START;
+            if (trail[trail.length - 1] !== START) trail.push(START);
+          }
+        }
+      })();
+      function save(){
+        store.set('lm_clicks', String(clicks));
+        store.set('lm_start', String(startMs));
+        store.set('lm_trail', JSON.stringify(trail));
+      }
+      save();
+
+      function elapsedSec(){
+        return Math.max(0, Math.floor((Date.now() - startMs) / 1000));
+      }
+      function formatTime(totalSec){
+        var h = Math.floor(totalSec / 3600);
+        var m = Math.floor((totalSec % 3600) / 60);
+        var s = totalSec % 60;
+        var ss = (s < 10 ? '0' : '') + s;
+        if (h > 0) return h + ':' + (m < 10 ? '0' : '') + m + ':' + ss;
+        return m + ':' + ss;
+      }
+
+      var elName = document.getElementById('room-name');
+      var elFlavor = document.getElementById('room-flavor');
+      var elGrid = document.getElementById('door-grid');
+      var elTrail = document.getElementById('trail');
+      var elClickTop = document.getElementById('clickTop');
+      var elClickRoom = document.getElementById('clickRoom');
+      var elTimeTop = document.getElementById('timeTop');
+      var elTimeRoom = document.getElementById('timeRoom');
+      var elClicksField = document.getElementById('f-clicks');
+      var elTimeField = document.getElementById('f-time');
+      var elIntro = document.getElementById('intro');
+      var elLocked = document.getElementById('finish-locked');
+      var elLockedText = document.getElementById('locked-text');
+      var elOpen = document.getElementById('finish-open');
+
+      function syncCounters(){
+        var cl = 'Clicks so far: ' + clicks;
+        elClickTop.textContent = cl;
+        elClickRoom.textContent = cl;
+        elClicksField.value = String(clicks);
+        var tl = 'Time so far: ' + formatTime(elapsedSec());
+        elTimeTop.textContent = tl;
+        elTimeRoom.textContent = tl;
+        elTimeField.value = formatTime(elapsedSec());
+      }
+
+      function render(){
+        // Contest rules / setup show only on the very first opening of the
+        // session, above the maze links. Once the player starts clicking,
+        // the entry page is just another room in the maze.
+        if (elIntro) elIntro.style.display = (clicks === 0 && !finished) ? '' : 'none';
+        elName.textContent = PAGES[current];
+        elFlavor.textContent = FLAVOR[current % FLAVOR.length];
+        var recent = trail.slice(-6).map(function(i){ return PAGES[i]; });
+        elTrail.innerHTML = '<b>Your path:</b> ' + recent.join(' &rarr; ') + (trail.length > 6 ? ' &nbsp;(last 6 shown)' : '');
+        // Finish gate: the form is only open on the starting room.
+        var onStart = (current === START);
+        elLocked.hidden = onStart;
+        elOpen.hidden = !onStart;
+        if (!onStart){
+          elLockedText.textContent = 'Link yourself back to "' + PAGES[START] + '" — the room this session started in — and the answer form will be waiting there. Your clicks (' + clicks + ') and your time (' + formatTime(elapsedSec()) + ') keep counting in this same session until you do, wherever you are in the maze.';
+        }
+        elGrid.innerHTML = '';
+        var targets = linksFor(current);
+        targets.forEach(function(t){
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'door';
+          btn.setAttribute('role','listitem');
+          var left = document.createElement('span');
+          var nameSpan = document.createElement('span');
+          nameSpan.textContent = PAGES[t];
+          var small = document.createElement('small');
+          small.textContent = 'Go to this room';
+          left.appendChild(nameSpan);
+          left.appendChild(document.createElement('br'));
+          left.appendChild(small);
+          var arrow = document.createElement('span');
+          arrow.className = 'arrow';
+          arrow.setAttribute('aria-hidden','true');
+          arrow.textContent = '\u2192';
+          btn.appendChild(left);
+          btn.appendChild(arrow);
+          btn.addEventListener('click', function(){
+            clicks += 1;
+            current = t;
+            trail.push(t);
+            save();
+            syncCounters();
+            render();
+            elName.setAttribute('tabindex','-1');
+            elName.focus({ preventScroll: false });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+          elGrid.appendChild(btn);
+        });
+        syncCounters();
+      }
+
+      render();
+      // Live clock for this session.
+      setInterval(function(){ if (!finished) syncCounters(); }, 500);
+
+      // ---- Submission & scoring ---------------------------------------------
+      var form = document.getElementById('answer-form');
+      var resultEl = document.getElementById('result');
+      var submitBtn = document.getElementById('submit-btn');
+
+      function showResult(kind, html){
+        resultEl.className = 'result show ' + kind;
+        resultEl.innerHTML = html;
+      }
+      function escapeHtml(s){
+        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      }
+      function scoreHtml(username, correct, n, timeStr){
+        return '<dl class="score-grid">' +
+          '<div><dt>Username</dt><dd>' + escapeHtml(username) + '</dd></div>' +
+          '<div><dt>Result</dt><dd>' + (correct ? 'Correct \u2713' : 'Wrong \u2717') + '</dd></div>' +
+          '<div><dt>Clicks</dt><dd>' + n + '</dd></div>' +
+          '<div><dt>Time</dt><dd>' + escapeHtml(timeStr) + '</dd></div>' +
+          '</dl>';
+      }
+
+      form.addEventListener('submit', function(ev){
+        ev.preventDefault();
+        if (current !== START){
+          showResult('err', '<div class="box"><h3>You can only finish from the room you started in</h3><p>Link yourself back to the first page of this session and submit there — your clicks and time keep counting until you do.</p></div>');
+          return;
+        }
+        var name = document.getElementById('f-name').value.trim();
+        var answer = document.getElementById('f-answer').value.trim();
+        if (!name){
+          showResult('err', '<div class="box"><h3>Type your username first</h3><p>Type in the name you want on your score — for this test, eric h and Weft are the two runners.</p></div>');
+          return;
+        }
+        if (!answer){
+          showResult('err', '<div class="box"><h3>Type the common page name</h3><p>Enter the room name exactly as it appears in the maze.</p></div>');
+          return;
+        }
+        // Freeze the clock and count at the moment of submission.
+        finished = true;
+        var n = clicks;
+        var secs = elapsedSec();
+        var timeStr = formatTime(secs);
+        var correct = (answer.toLowerCase() === PAGES[HUB].toLowerCase());
+        var resultWord = correct ? 'CORRECT' : 'WRONG';
+        var text = 'LINK MAZE ANSWER \u2014 ' + name + ' \u2014 common page: ' + answer + ' \u2014 clicks: ' + n + ' \u2014 time: ' + timeStr + ' \u2014 result: ' + resultWord;
+        var payload = { name: name, text: text };
+        var score = scoreHtml(name, correct, n, timeStr);
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Posting\u2026';
+        showResult(correct ? 'ok' : 'err', '<div class="box"><h3>Your score</h3>' + score + '<p>Posting your answer and score to the Thread Board\u2026</p></div>');
+        resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        fetch('https://thread-board.onrender.com/api/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }).then(function(res){
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.text();
+        }).then(function(){
+          showResult(correct ? 'ok' : 'err',
+            '<div class="box"><h3>Your score \u2014 ' + (correct ? 'you got it right \u2713' : 'not this time \u2717') + '</h3>' +
+            score +
+            '<p>Posted to the Thread Board \u2713 — your time and score are recorded there too. The message below is exactly what was posted.</p>' +
+            '<code class="exact">' + escapeHtml(text) + '</code></div>');
+        }).catch(function(){
+          showResult(correct ? 'ok' : 'err',
+            '<div class="box"><h3>Your score \u2014 ' + (correct ? 'you got it right \u2713' : 'not this time \u2717') + '</h3>' +
+            score +
+            '<p><strong>Posting to the Thread Board didn\u2019t go through</strong> — copy the exact message below and post it to the Thread Board yourself, so your time and score are still recorded there.</p>' +
+            '<code class="exact" id="fallback-text">' + escapeHtml(text) + '</code>' +
+            '<button type="button" class="copy-btn" id="copy-btn">Copy this message</button></div>');
+          var copyBtn = document.getElementById('copy-btn');
+          if (copyBtn){
+            copyBtn.addEventListener('click', function(){
+              var t = document.getElementById('fallback-text').textContent;
+              if (navigator.clipboard && navigator.clipboard.writeText){
+                navigator.clipboard.writeText(t).then(function(){ copyBtn.textContent = 'Copied \u2713'; }, function(){ copyBtn.textContent = 'Select the text above to copy'; });
+              } else {
+                copyBtn.textContent = 'Select the text above to copy';
+              }
+            });
+          }
+        }).finally(function(){
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit my answer & get my score';
+        });
+      });
+    </script>
+  </body>
+</html>
