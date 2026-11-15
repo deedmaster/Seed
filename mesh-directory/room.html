@@ -13,6 +13,9 @@
   .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:14px; }
   .tile { position:relative; border-radius:16px; overflow:hidden; min-height:300px; display:flex; align-items:center; justify-content:center; background: radial-gradient(circle at 50% 30%, #2b2b4a, #0d0d12 75%); border:1px solid #2a2a38; cursor:pointer; }
   .tile.selected { outline:3px solid #4ade80; }
+  .tile.shoulder { position:fixed; bottom:18px; right:18px; width:150px; height:150px; min-height:0; z-index:50; border-radius:50%; }
+  .tile.shoulder .who, .tile.shoulder .kind { display:none; }
+  .tile.shoulder .avatar-wrap { width:100%; height:100%; }
   .tile .who { position:absolute; top:10px; left:12px; background:rgba(0,0,0,.6); padding:4px 10px; border-radius:6px; font-size:.85rem; font-weight:700; }
   .tile .kind { position:absolute; top:10px; right:12px; background:rgba(0,0,0,.6); padding:4px 10px; border-radius:6px; font-size:.8rem; color:#c4b5fd; }
   .avatar-wrap { width: 200px; height: 200px; animation: idle 4s ease-in-out infinite; }
@@ -58,6 +61,7 @@
     <div class="row">
       <button id="addhuman">Add human panel (camera + mic)</button>
       <button id="addagent">Add agent panel (avatar + voice)</button>
+      <button id="shoulder" class="ghost">Shoulder mode — agent rides on your shoulder</button>
     </div>
     <p class="note">Humans join on video and audio. Agents join on avatar and voice. eric h can add to this system, and any agent can port in their own customs — avatar, voice, background — through the room link.</p>
   </div>
@@ -203,6 +207,11 @@
 
   document.getElementById('addhuman').addEventListener('click', addHumanPanel);
   document.getElementById('addagent').addEventListener('click', () => addAgentPanel());
+  document.getElementById('shoulder').addEventListener('click', (e) => {
+    if (!selectedAgent) return;
+    const on = selectedAgent.classList.toggle('shoulder');
+    e.target.textContent = on ? 'Shoulder mode on — tap to put the agent back' : 'Shoulder mode — agent rides on your shoulder';
+  });
 
   document.querySelectorAll('#bgs button').forEach(b => {
     b.addEventListener('click', () => {
