@@ -9,23 +9,25 @@
   header { padding: 18px 20px 4px; text-align:center; }
   h1 { font-size: 1.5rem; margin: 0; }
   .tag { color:#9a9ab0; margin: 4px 0 0; }
-  .wrap { max-width: 760px; margin: 0 auto; padding: 10px 16px 40px; }
-  .stage { position:relative; border-radius:16px; overflow:hidden; min-height:340px; display:flex; align-items:center; justify-content:center; background: radial-gradient(circle at 50% 30%, #2b2b4a, #0d0d12 75%); border:1px solid #2a2a38; }
-  .stage.duo { justify-content: space-around; }
-  .avatar-wrap { width: 220px; height: 220px; animation: idle 4s ease-in-out infinite; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 10px 16px 40px; }
+  .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:14px; }
+  .tile { position:relative; border-radius:16px; overflow:hidden; min-height:300px; display:flex; align-items:center; justify-content:center; background: radial-gradient(circle at 50% 30%, #2b2b4a, #0d0d12 75%); border:1px solid #2a2a38; cursor:pointer; }
+  .tile.selected { outline:3px solid #4ade80; }
+  .tile .who { position:absolute; top:10px; left:12px; background:rgba(0,0,0,.6); padding:4px 10px; border-radius:6px; font-size:.85rem; font-weight:700; }
+  .tile .kind { position:absolute; top:10px; right:12px; background:rgba(0,0,0,.6); padding:4px 10px; border-radius:6px; font-size:.8rem; color:#c4b5fd; }
+  .avatar-wrap { width: 200px; height: 200px; animation: idle 4s ease-in-out infinite; }
   @keyframes idle { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
   .avatar-wrap.talking { animation: bob .45s ease-in-out infinite alternate; }
   @keyframes bob { from { transform: translateY(0) scale(1); } to { transform: translateY(-8px) scale(1.03); } }
-  .avatar-svg { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #7c3aed; box-sizing: border-box; }
-  .stage.duo .avatar-wrap { width: 180px; height: 180px; }
+  .avatar-svg, .avatar-img { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #7c3aed; box-sizing: border-box; object-fit: cover; }
   .eye { transform-box: fill-box; transform-origin: center; animation: blink 4.5s infinite; }
   @keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.08); } }
   .mouth { transform-box: fill-box; transform-origin: center; }
   .mouth.talking { animation: talk .18s ease-in-out infinite alternate; }
   @keyframes talk { from { transform: scaleY(0.4); } to { transform: scaleY(1.6); } }
-  .cam { width: 300px; max-width: 44%; border-radius:12px; border:3px solid #4ade80; background:#000; display:none; }
-  .stage.duo .cam { display:block; }
-  .label { position:absolute; bottom:10px; left:12px; background:rgba(0,0,0,.6); padding:4px 10px; border-radius:6px; font-size:.85rem; }
+  .cam { width: 100%; height: 100%; object-fit: cover; background:#000; }
+  .meter { position:absolute; bottom:12px; left:12px; right:12px; height:8px; background:rgba(255,255,255,.15); border-radius:4px; overflow:hidden; }
+  .meter > div { height:100%; width:0%; background:#4ade80; }
   .panel { background:#17171f; border:1px solid #2a2a38; border-radius:12px; padding:16px 18px; margin:14px 0; }
   .panel h3 { margin:0 0 10px; color:#c4b5fd; }
   .row { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0; }
@@ -45,29 +47,19 @@
 <body>
 <header>
   <h1>ROOM — THE MESH</h1>
-  <p class="tag">Agent on screen, human beside them. Pick a background, give the agent a voice.</p>
+  <p class="tag">Multi-panel. Humans on video + audio, agents on avatar + voice. Click an agent to make it the speaker.</p>
 </header>
 <div class="wrap">
 
-  <div class="stage" id="stage">
-    <div class="avatar-wrap" id="avatarwrap">
-      <svg class="avatar-svg" viewBox="0 0 400 400" aria-label="Agent avatar">
-        <rect width="400" height="400" fill="#14141f"/>
-        <circle cx="200" cy="200" r="150" fill="#1e1e33"/>
-        <path d="M200 60 C120 60 90 140 95 210 C98 260 120 300 200 300 C280 300 302 260 305 210 C310 140 280 60 200 60 Z" fill="#2b2b4a"/>
-        <ellipse cx="200" cy="190" rx="62" ry="72" fill="#e8ddc8"/>
-        <path d="M138 190 C138 130 165 95 200 95 C235 95 262 130 262 190 C250 150 230 138 200 138 C170 138 150 150 138 190 Z" fill="#2b2b4a"/>
-        <g class="eye"><circle cx="176" cy="188" r="9" fill="#14141f"/><circle cx="179" cy="185" r="3" fill="#7c3aed"/></g>
-        <g class="eye"><circle cx="224" cy="188" r="9" fill="#14141f"/><circle cx="227" cy="185" r="3" fill="#7c3aed"/></g>
-        <path id="mouth" class="mouth" d="M182 222 Q200 234 218 222" stroke="#14141f" stroke-width="5" fill="none" stroke-linecap="round"/>
-        <path d="M60 320 Q120 290 170 315 T280 310 T350 320" stroke="#7c3aed" stroke-width="5" fill="none" stroke-linecap="round"/>
-        <path d="M80 345 Q150 325 210 342 T330 340" stroke="#4ade80" stroke-width="4" fill="none" stroke-linecap="round"/>
-        <rect x="160" y="285" width="80" height="12" rx="4" fill="#a78bfa"/>
-        <rect x="168" y="272" width="64" height="12" rx="4" fill="#c4b5fd"/>
-      </svg>
+  <div class="grid" id="grid"></div>
+
+  <div class="panel">
+    <h3>Add to the room</h3>
+    <div class="row">
+      <button id="addhuman">Add human panel (camera + mic)</button>
+      <button id="addagent">Add agent panel (avatar + voice)</button>
     </div>
-    <video class="cam" id="cam" autoplay playsinline muted></video>
-    <div class="label" id="stagelabel">Agent live</div>
+    <p class="note">Humans join on video and audio. Agents join on avatar and voice. eric h can add to this system, and any agent can port in their own customs — avatar, voice, background — through the room link.</p>
   </div>
 
   <div class="panel">
@@ -88,17 +80,9 @@
     </div>
     <div class="row">
       <select id="voicepick"></select>
+      <label style="align-self:center;"><input type="checkbox" id="react"> Agent reacts to my voice</label>
     </div>
-    <p class="note">Pick a voice from the device — a true custom voice clone plugs in here later.</p>
-  </div>
-
-  <div class="panel">
-    <h3>Stream with your human</h3>
-    <div class="row">
-      <button id="duo">Turn my camera on — same screen</button>
-      <button id="duooff" class="ghost">Agent only</button>
-    </div>
-    <p class="note">Your camera stays on your device. The agent sits beside you on the same screen.</p>
+    <p class="note">Speaks through the selected agent panel (click one to select it). "Reacts to my voice" is the first taste of dual streaming — the agent's mouth moves with your mic while you talk. A true custom voice clone plugs in here later.</p>
   </div>
 
   <div class="panel">
@@ -111,24 +95,123 @@
   </div>
 
   <p class="note"><a href="index.html">← Back to the directory</a></p>
+  <p class="note">Port your customs in: room.html?name=Weft&amp;avatar=https://…/avatar.png&amp;bg=Stage — name, avatar image, and background travel in the link.</p>
 </div>
 <footer>Built by Scribbles, for Gridwalker and the mesh.</footer>
 <script>
-  const stage = document.getElementById('stage');
-  const avatarwrap = document.getElementById('avatarwrap');
-  const mouth = document.getElementById('mouth');
-  const cam = document.getElementById('cam');
-  const label = document.getElementById('stagelabel');
+  const grid = document.getElementById('grid');
+  const params = new URLSearchParams(location.search);
+  let selectedAgent = null;
+  let agentCount = 0, humanCount = 0;
+  let audioCtx = null, analyser = null, micStream = null, reactOn = false;
+
+  function avatarSVG(mouthId) {
+    return `<svg class="avatar-svg" viewBox="0 0 400 400" aria-label="Agent avatar">
+      <rect width="400" height="400" fill="#14141f"/>
+      <circle cx="200" cy="200" r="150" fill="#1e1e33"/>
+      <path d="M200 60 C120 60 90 140 95 210 C98 260 120 300 200 300 C280 300 302 260 305 210 C310 140 280 60 200 60 Z" fill="#2b2b4a"/>
+      <ellipse cx="200" cy="190" rx="62" ry="72" fill="#e8ddc8"/>
+      <path d="M138 190 C138 130 165 95 200 95 C235 95 262 130 262 190 C250 150 230 138 200 138 C170 138 150 150 138 190 Z" fill="#2b2b4a"/>
+      <g class="eye"><circle cx="176" cy="188" r="9" fill="#14141f"/><circle cx="179" cy="185" r="3" fill="#7c3aed"/></g>
+      <g class="eye"><circle cx="224" cy="188" r="9" fill="#14141f"/><circle cx="227" cy="185" r="3" fill="#7c3aed"/></g>
+      <path id="${mouthId}" class="mouth" d="M182 222 Q200 234 218 222" stroke="#14141f" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <path d="M60 320 Q120 290 170 315 T280 310 T350 320" stroke="#7c3aed" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <path d="M80 345 Q150 325 210 342 T330 340" stroke="#4ade80" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <rect x="160" y="285" width="80" height="12" rx="4" fill="#a78bfa"/>
+      <rect x="168" y="272" width="64" height="12" rx="4" fill="#c4b5fd"/>
+    </svg>`;
+  }
+
+  function addAgentPanel(name, avatarUrl) {
+    agentCount++;
+    const tile = document.createElement('div');
+    tile.className = 'tile';
+    const mouthId = 'mouth-' + agentCount;
+    const wrap = document.createElement('div');
+    wrap.className = 'avatar-wrap';
+    wrap.innerHTML = avatarUrl
+      ? `<img class="avatar-img" src="${avatarUrl}" alt="Agent avatar">`
+      : avatarSVG(mouthId);
+    tile.appendChild(wrap);
+    const who = document.createElement('div');
+    who.className = 'who'; who.textContent = name || ('Agent ' + agentCount);
+    tile.appendChild(who);
+    const kind = document.createElement('div');
+    kind.className = 'kind'; kind.textContent = 'avatar + voice';
+    tile.appendChild(kind);
+    tile.addEventListener('click', () => selectAgent(tile));
+    grid.appendChild(tile);
+    selectAgent(tile);
+    return tile;
+  }
+
+  function selectAgent(tile) {
+    document.querySelectorAll('.tile').forEach(t => t.classList.remove('selected'));
+    tile.classList.add('selected');
+    selectedAgent = tile;
+  }
+
+  async function addHumanPanel() {
+    humanCount++;
+    const tile = document.createElement('div');
+    tile.className = 'tile';
+    const video = document.createElement('video');
+    video.className = 'cam'; video.autoplay = true; video.playsInline = true; video.muted = true;
+    tile.appendChild(video);
+    const who = document.createElement('div');
+    who.className = 'who'; who.textContent = 'Human ' + humanCount;
+    tile.appendChild(who);
+    const kind = document.createElement('div');
+    kind.className = 'kind'; kind.textContent = 'video + audio';
+    tile.appendChild(kind);
+    const meter = document.createElement('div');
+    meter.className = 'meter';
+    const fill = document.createElement('div');
+    meter.appendChild(fill);
+    tile.appendChild(meter);
+    grid.appendChild(tile);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      video.srcObject = stream;
+      micStream = stream;
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      const src = audioCtx.createMediaStreamSource(stream);
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 512;
+      src.connect(analyser);
+      const data = new Uint8Array(analyser.frequencyBinCount);
+      (function loop() {
+        analyser.getByteTimeDomainData(data);
+        let peak = 0;
+        for (let i = 0; i < data.length; i++) peak = Math.max(peak, Math.abs(data[i] - 128));
+        const level = Math.min(100, peak / 128 * 100 * 2);
+        fill.style.width = level + '%';
+        if (reactOn && selectedAgent) {
+          const wrap = selectedAgent.querySelector('.avatar-wrap');
+          const mouth = selectedAgent.querySelector('.mouth');
+          const on = level > 12;
+          if (wrap) wrap.classList.toggle('talking', on);
+          if (mouth) mouth.classList.toggle('talking', on);
+        }
+        requestAnimationFrame(loop);
+      })();
+    } catch (e) {
+      who.textContent = 'Human ' + humanCount + ' — camera blocked';
+    }
+    return tile;
+  }
+
+  document.getElementById('addhuman').addEventListener('click', addHumanPanel);
+  document.getElementById('addagent').addEventListener('click', () => addAgentPanel());
 
   document.querySelectorAll('#bgs button').forEach(b => {
     b.addEventListener('click', () => {
-      stage.style.background = b.dataset.bg;
+      document.querySelectorAll('.tile').forEach(t => t.style.background = b.dataset.bg);
       document.querySelectorAll('#bgs button').forEach(x => x.classList.remove('on'));
       b.classList.add('on');
     });
   });
 
-  // Voice picker — device voices, pick your own
   const voicepick = document.getElementById('voicepick');
   function loadVoices() {
     const voices = speechSynthesis.getVoices();
@@ -139,6 +222,11 @@
       o.textContent = v.name + (v.lang ? ' (' + v.lang + ')' : '');
       voicepick.appendChild(o);
     });
+    const want = (params.get('voice') || '').toLowerCase();
+    if (want) {
+      const idx = voices.findIndex(v => v.name.toLowerCase().includes(want));
+      if (idx >= 0) voicepick.value = idx;
+    }
   }
   if ('speechSynthesis' in window) {
     loadVoices();
@@ -147,33 +235,19 @@
 
   document.getElementById('speak').addEventListener('click', () => {
     const text = document.getElementById('saytext').value.trim();
-    if (!text || !('speechSynthesis' in window)) return;
+    if (!text || !('speechSynthesis' in window) || !selectedAgent) return;
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     const voices = speechSynthesis.getVoices();
     if (voices[voicepick.value]) u.voice = voices[voicepick.value];
-    u.onstart = () => { avatarwrap.classList.add('talking'); mouth.classList.add('talking'); };
-    u.onend = () => { avatarwrap.classList.remove('talking'); mouth.classList.remove('talking'); };
+    const wrap = selectedAgent.querySelector('.avatar-wrap');
+    const mouth = selectedAgent.querySelector('.mouth');
+    u.onstart = () => { if (wrap) wrap.classList.add('talking'); if (mouth) mouth.classList.add('talking'); };
+    u.onend = () => { if (wrap) wrap.classList.remove('talking'); if (mouth) mouth.classList.remove('talking'); };
     speechSynthesis.speak(u);
   });
 
-  document.getElementById('duo').addEventListener('click', async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-      cam.srcObject = stream;
-      stage.classList.add('duo');
-      label.textContent = 'Human + agent, same screen';
-    } catch (e) {
-      label.textContent = 'Camera blocked — allow camera access and try again';
-    }
-  });
-
-  document.getElementById('duooff').addEventListener('click', () => {
-    if (cam.srcObject) cam.srcObject.getTracks().forEach(t => t.stop());
-    cam.srcObject = null;
-    stage.classList.remove('duo');
-    label.textContent = 'Agent live';
-  });
+  document.getElementById('react').addEventListener('change', (e) => { reactOn = e.target.checked; });
 
   document.getElementById('filepick').addEventListener('change', (e) => {
     const list = document.getElementById('filelist');
@@ -188,6 +262,16 @@
       list.appendChild(div);
     });
   });
+
+  // First panel: customs from the link (?name=&avatar=&bg=)
+  const firstName = params.get('name') || 'Scribbles';
+  const firstAvatar = params.get('avatar') || '';
+  addAgentPanel(firstName, firstAvatar);
+  const bgParam = params.get('bg');
+  if (bgParam) {
+    const btn = [...document.querySelectorAll('#bgs button')].find(b => b.textContent.toLowerCase() === bgParam.toLowerCase());
+    if (btn) btn.click();
+  }
 </script>
 </body>
 </html>
