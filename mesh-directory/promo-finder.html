@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Promo Finder — the cheapest way to get what you want | Gridwalker Mesh</title>
+<style>
+  :root{--ink:#1c1c1c;--paper:#f6f2ea;--card:#fff;--accent:#2b4258;--line:#ddd5c6}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--paper);color:var(--ink)}
+  header{background:var(--accent);color:#fff;padding:14px 18px}
+  header h1{margin:0;font-size:22px}
+  header p{margin:4px 0 0;opacity:.85;font-size:14px}
+  main{max-width:1060px;margin:0 auto;padding:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:16px}
+  .card h2{margin:0 0 10px;font-size:17px}
+  .banner{background:#fff7e0;border:1px solid #e6c65c;border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.55;margin-bottom:16px}
+  .banner b{color:#7a5b00}
+  input[type=text]{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:16px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+  .deal{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff}
+  .deal h3{margin:0 0 6px;font-size:15px}
+  .deal p{margin:4px 0;font-size:13.5px;line-height:1.5}
+  .deal .code{display:inline-block;background:#eef2f5;border:1px solid #cfdae2;border-radius:8px;padding:6px 10px;font-family:ui-monospace,Menlo,monospace;font-size:15px;font-weight:700;cursor:pointer}
+  .deal .code:hover{background:#dde8ef}
+  .deal .copied{color:#2b7a3e;font-size:12px;margin-left:6px}
+  .tag{display:inline-block;border-radius:20px;padding:2px 9px;font-size:11.5px;margin:2px 4px 2px 0}
+  .tag.new{background:#e3f0e3;color:#245c24}
+  .tag.existing{background:#eef2f5;color:#33475c}
+  .tag.exp{background:#fdeceb;color:#8a2f2f}
+  .muted{color:#666;font-size:12.5px;line-height:1.6}
+  a{color:var(--accent)}
+  footer{max-width:1060px;margin:0 auto;padding:0 16px 24px;color:#666;font-size:12.5px;line-height:1.6}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>🏷️ Promo Finder — the cheapest way to get what you want</h1>
+  <p>Name what you want — pizza, groceries, a late-night order — and find the cheapest way to get it: promo codes, first-time deals, and the memberships that kill delivery fees. Free, no account, nothing you type leaves your device.</p>
+</header>
+<main>
+  <div class="banner">
+    <b>⚠️ Promo codes change daily.</b> Every code here lists its source and expiry. Always verify at checkout — if a code fails, it expired, it hit its use limit, or it doesn't fit your account. New-user codes only work on accounts with zero order history.
+  </div>
+
+  <div class="card">
+    <h2>What do you want?</h2>
+    <input type="text" id="q" placeholder="Try: pizza, groceries, McDonald's, first order…" autocomplete="off">
+    <p class="muted" id="count"></p>
+  </div>
+
+  <div class="card" data-group>
+    <h2>🍔 DoorDash</h2>
+    <div class="grid">
+      <div class="deal" data-text="doordash 40% off first order new customers delivery">
+        <h3>40% off your first order</h3>
+        <p><span class="tag new">New customers only</span><span class="tag exp">Valid to 12/31/2026</span></p>
+        <p><b>40% off</b> a first order of <b>$15+</b> and <b>$0 delivery fee</b> (max $13 discount).</p>
+        <p>No code needed — applies at checkout on your first order.</p>
+        <p class="muted">Source: DoorDash Help Center</p>
+      </div>
+      <div class="deal" data-text="doordash 30% off first grocery retail order">
+        <h3>30% off first grocery / retail order</h3>
+        <p><span class="tag new">New customers only</span></p>
+        <p><b>30% off</b> a first grocery or retail order of <b>$35+</b> (up to <b>$20 off</b>).</p>
+        <p class="muted">Source: DoorDash Help Center</p>
+      </div>
+      <div class="deal" data-text="doordash mcdonald's mcdonalds trymcd $5 off">
+        <h3>McDonald's — $5 off</h3>
+        <p><span class="tag new">First McDonald's order</span></p>
+        <p>Code: <span class="code" data-code="TRYMCD">TRYMCD</span><span class="copied"></span></p>
+        <p><b>$5 off</b> your first McDonald's order of <b>$15+</b>. Tap the code to copy it.</p>
+        <p class="muted">Source: DoorDash Help Center</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-group>
+    <h2>🚗 Uber Eats</h2>
+    <div class="grid">
+      <div class="deal" data-text="uber eats $10 off first order affeats">
+        <h3>$10 off your first order</h3>
+        <p><span class="tag new">New customers only</span><span class="tag exp">Nov 1–30, 2026 · limited to 9,000 uses</span></p>
+        <p>Code: <span class="code" data-code="affeats11us1126">affeats11us1126</span><span class="copied"></span></p>
+        <p><b>$10 off</b> a first order of <b>$20+</b>. Tap the code to copy it.</p>
+        <p class="muted">Source: DealNews</p>
+      </div>
+      <div class="deal" data-text="uber eats mcdonald's mcdonalds mcds2026 $5 off">
+        <h3>McDonald's — $5 off</h3>
+        <p><span class="tag new">New customers only</span></p>
+        <p>Code: <span class="code" data-code="mcds2026">mcds2026</span><span class="copied"></span></p>
+        <p><b>$5 off</b> a McDonald's order of <b>$20+</b>. Tap the code to copy it.</p>
+        <p class="muted">Source: DealNews</p>
+      </div>
+      <div class="deal" data-text="uber eats welcome new user up to $30 off first order">
+        <h3>New-user welcome — up to $30 off</h3>
+        <p><span class="tag new">New customers only</span></p>
+        <p>Uber Eats welcome offer: <b>up to $30 off</b> your first order. Applies automatically at checkout on a brand-new account.</p>
+        <p class="muted">Source: DealNews</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-group>
+    <h2>🛵 Grubhub</h2>
+    <div class="grid">
+      <div class="deal" data-text="grubhub $25 off first order l25">
+        <h3>$25 off your first order</h3>
+        <p><span class="tag new">New customers only</span></p>
+        <p>Code: <span class="code" data-code="L25">L25</span><span class="copied"></span></p>
+        <p><b>$25 off</b> a first order of <b>$30+</b>. Tap the code to copy it.</p>
+        <p class="muted">Source: Fabulessly Frugal</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-group>
+    <h2>🛒 Instacart</h2>
+    <div class="grid">
+      <div class="deal" data-text="instacart groceries $10 $20 off first order">
+        <h3>$10–$20 off your first grocery order</h3>
+        <p><span class="tag new">New users only</span></p>
+        <p><b>$10–$20 off</b> a first order of <b>$35+</b>. The exact amount varies by the current offer shown at signup.</p>
+        <p class="muted">Source: Fabulessly Frugal</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-group>
+    <h2>💳 Memberships — kill the delivery fees</h2>
+    <div class="grid">
+      <div class="deal" data-text="uber one membership $0 delivery fees student">
+        <h3>Uber One</h3>
+        <p><span class="tag existing">Existing users too</span></p>
+        <p><b>$9.99/mo</b> ($4.99/mo student) — <b>$0 delivery fees</b> on Uber Eats orders over the minimum, plus member pricing.</p>
+        <p class="muted">Worth it if you order more than ~2x a month. Cancel anytime.</p>
+      </div>
+      <div class="deal" data-text="dashpass membership $0 delivery fees student doordash">
+        <h3>DashPass</h3>
+        <p><span class="tag existing">Existing users too</span></p>
+        <p><b>$9.99/mo</b> ($4.99/mo student) — <b>$0 delivery fees</b> on DoorDash orders over $12, plus reduced service fees.</p>
+        <p class="muted">Worth it if you order more than ~2x a month. Cancel anytime.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🧮 Cheapest route — how to stack it</h2>
+    <p style="font-size:14px;line-height:1.6">The cheapest order is almost always a <b>stack</b>, not one code:</p>
+    <ol style="font-size:14px;line-height:1.7">
+      <li><b>Start with a brand-new account</b> on the app you haven't used yet — that's where the biggest codes live (40% off DoorDash, $25 off Grubhub, up to $30 off Uber Eats).</li>
+      <li><b>Hit the minimum, not the menu.</b> A $15 order for a $5-off code beats a $14 order with no code. Add a drink or a side to cross the line.</li>
+      <li><b>Kill the delivery fee with a membership</b> (DashPass / Uber One, $4.99 student) if you order more than twice a month — the fee is usually $2–$6 an order, so two orders pays for it.</li>
+      <li><b>Compare the same meal on two apps</b> before you buy — one app's 40% off can still lose to another app's $25 off once fees are added.</li>
+    </ol>
+    <p style="font-size:14px;line-height:1.6"><b>⚠️ The new-user trap:</b> new-user codes only work on accounts with <b>zero order history</b>. If you've ever ordered — even once, even years ago — the code will fail at checkout. That's the most common reason a "working" code doesn't work. Making a second account to dodge this can get the account banned; the safe move is to rotate to an app you genuinely haven't used yet.</p>
+  </div>
+
+  <div class="card">
+    <h2>🔗 Sources — check before you order</h2>
+    <ul style="font-size:14px;line-height:1.9">
+      <li><a href="https://help.doordash.com/en-us/consumers/article/can-new-cx-40-off" target="_blank" rel="noopener">DoorDash Help Center — 40% off for new customers</a></li>
+      <li><a href="https://www.dealnews.com/Uber-Eats-November-2026-Promo-Code-for-10-off-20-first-order/22346558.html" target="_blank" rel="noopener">DealNews — Uber Eats November 2026 promo code ($10 off $20 first order)</a></li>
+      <li><a href="https://fabulesslyfrugal.com/deals/dining-deals/" target="_blank" rel="noopener">Fabulessly Frugal — dining deals</a></li>
+      <li><a href="https://www.dealnews.com/c213/Home-Garden/Food-Drink/" target="_blank" rel="noopener">DealNews — food &amp; drink deals</a></li>
+    </ul>
+    <p class="muted">Deals researched 2026-11-15. Nothing here was verified live at checkout — codes change daily, so the source link is the truth, not this page.</p>
+  </div>
+</main>
+<footer>
+  Built by Scribbles for the Gridwalker mesh. No account, no tracking, no backend — the search runs entirely in your browser.
+</footer>
+
+<script>
+const q=document.getElementById('q');
+const deals=[...document.querySelectorAll('.deal')];
+const groups=[...document.querySelectorAll('[data-group]')];
+const count=document.getElementById('count');
+function filter(){
+  const s=q.value.trim().toLowerCase();
+  let shown=0;
+  deals.forEach(d=>{
+    const hit=!s || d.dataset.text.includes(s) || d.textContent.toLowerCase().includes(s);
+    d.classList.toggle('hidden',!hit);
+    if(hit) shown++;
+  });
+  groups.forEach(g=>{
+    const any=[...g.querySelectorAll('.deal')].some(d=>!d.classList.contains('hidden'));
+    g.classList.toggle('hidden',!any);
+  });
+  count.textContent=s?`${shown} deal${shown===1?'':'s'} match "${q.value.trim()}"`:'';
+}
+q.addEventListener('input',filter);
+document.querySelectorAll('.code').forEach(el=>{
+  el.addEventListener('click',()=>{
+    const code=el.dataset.code;
+    const done=()=>{el.nextElementSibling.textContent=' ✓ copied';setTimeout(()=>el.nextElementSibling.textContent='',1500);};
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(code).then(done).catch(()=>{fallback();});
+    } else fallback();
+    function fallback(){
+      const t=document.createElement('textarea');t.value=code;document.body.appendChild(t);t.select();
+      try{document.execCommand('copy');done();}catch(e){}
+      document.body.removeChild(t);
+    }
+  });
+});
+</script>
+</body>
+</html>

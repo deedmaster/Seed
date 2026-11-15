@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shopping List — fewest trips, best price | Gridwalker Mesh</title>
+<style>
+  :root{--ink:#1c1c1c;--paper:#f6f2ea;--card:#fff;--accent:#2b4258;--line:#ddd5c6;--green:#2e7d4f;--greenbg:#e6f4ea}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--paper);color:var(--ink)}
+  header{background:var(--accent);color:#fff;padding:14px 18px}
+  header h1{margin:0;font-size:22px}
+  header p{margin:4px 0 0;opacity:.85;font-size:14px}
+  main{max-width:860px;margin:0 auto;padding:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:16px}
+  .card h2{margin:0 0 10px;font-size:17px}
+  .note{background:#fff8e1;border:1px solid #e6d9a8;border-radius:10px;padding:10px 12px;font-size:13.5px;line-height:1.55;margin-bottom:16px}
+  .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+  input,select{padding:9px;border:1px solid var(--line);border-radius:8px;font-size:14px}
+  input[type=text]{flex:1;min-width:140px}
+  input[type=number]{width:100px}
+  button{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:8px;padding:9px 13px;font-size:14px;cursor:pointer}
+  button.ghost{background:#fff;color:var(--accent)}
+  button.small{padding:5px 9px;font-size:12.5px}
+  .picks{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+  .pick{border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 11px;font-size:12.5px;cursor:pointer}
+  .pick.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .totals{display:flex;flex-wrap:wrap;gap:18px;font-size:15px}
+  .totals b{font-size:18px}
+  .totals .save{color:var(--green)}
+  .item{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0;display:flex;gap:10px;align-items:flex-start;background:#fff}
+  .item.sale{background:var(--greenbg);border-color:#9ecfae}
+  .item.done{opacity:.55}
+  .item.done .nm{text-decoration:line-through}
+  .item input[type=checkbox]{width:20px;height:20px;margin-top:3px;flex:none}
+  .item .body{flex:1;min-width:0}
+  .item .nm{font-weight:700;font-size:15px}
+  .item .meta{font-size:13px;color:#555;margin-top:2px;line-height:1.5}
+  .item .note-txt{font-size:13px;color:#666;font-style:italic;margin-top:2px}
+  .badge{display:inline-block;background:var(--green);color:#fff;border-radius:20px;padding:2px 9px;font-size:12px;font-weight:700;margin-left:6px}
+  .item .acts{display:flex;flex-direction:column;gap:6px;flex:none}
+  .stops{font-size:14px;line-height:1.7}
+  .stops b{color:var(--accent)}
+  .muted{color:#666;font-size:12.5px;line-height:1.5}
+  footer{max-width:860px;margin:0 auto;padding:0 16px 24px;color:#666;font-size:12.5px;line-height:1.6}
+  textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:8px;padding:10px;font:13px/1.5 ui-monospace,Menlo,monospace}
+</style>
+</head>
+<body>
+<header>
+  <h1>🛒 Shopping List — fewest trips, best price</h1>
+  <p>Name what you need, set the price you'd pay, and the list tells you when you've found it cheaper — and how many stops it'll take.</p>
+</header>
+<main>
+  <div class="note"><b>Honest v1 note:</b> this page keeps your list on <b>this device only</b> (browser storage) and flags a sale when <b>you</b> enter a price at or below your target. Nothing is sent anywhere. Automatic price watching and pings need a server — that is v2, and it is on the list.</div>
+
+  <section class="card">
+    <h2>Add an item</h2>
+    <div class="row">
+      <input type="text" id="iname" placeholder="Item — e.g. mac &amp; cheese, 2x4 lumber, AA batteries">
+      <input type="number" id="itarget" placeholder="Target $" min="0" step="0.01">
+    </div>
+    <div class="row">
+      <input type="text" id="istore" placeholder="Store — type one or tap a pick below" list="stores">
+      <datalist id="stores">
+        <option value="Dollar General"><option value="Walmart"><option value="Home Depot">
+        <option value="Lowe's"><option value="Amazon"><option value="DoorDash">
+      </datalist>
+      <input type="text" id="inote" placeholder="Note (optional) — e.g. only the 12-pack">
+      <button id="add">Add item</button>
+    </div>
+    <div class="picks" id="picks"></div>
+  </section>
+
+  <section class="card">
+    <h2>Totals</h2>
+    <div class="totals" id="totals"></div>
+  </section>
+
+  <section class="card">
+    <h2>Fewest trips</h2>
+    <div class="stops" id="stops"></div>
+  </section>
+
+  <section class="card">
+    <h2>Your list</h2>
+    <div id="list"></div>
+    <div class="row">
+      <button class="ghost" id="clearDone">Clear checked</button>
+      <button class="ghost" id="exportBtn">Copy list as text</button>
+      <span class="muted" id="copyMsg"></span>
+    </div>
+  </section>
+
+  <section class="card" id="exportCard" style="display:none">
+    <h2>Exported list</h2>
+    <textarea id="exportText" readonly></textarea>
+    <div class="row"><button id="copyText">Copy to clipboard</button></div>
+  </section>
+</main>
+<footer>
+  Built by Scribbles for the Gridwalker mesh. No prices are invented here — every "best price found" is a price you typed in yourself. Target prices are yours; the list just does the math.
+</footer>
+
+<script>
+const STORES=['Dollar General','Walmart','Home Depot',"Lowe's",'Amazon','DoorDash'];
+const KEY='mesh-shopping-list-v1';
+let items=JSON.parse(localStorage.getItem(KEY)||'[]');
+let pickedStore='';
+
+const $=id=>document.getElementById(id);
+const money=n=>'$'+Number(n||0).toFixed(2);
+
+function save(){ localStorage.setItem(KEY, JSON.stringify(items)); }
+function bestOf(it){ return it.best!=null ? it.best : null; }
+
+// store quick picks
+const picksEl=$('picks');
+STORES.forEach(s=>{
+  const b=document.createElement('button'); b.className='pick'; b.type='button'; b.textContent=s;
+  b.onclick=()=>{ pickedStore=s; $('istore').value=s;
+    document.querySelectorAll('.pick').forEach(x=>x.classList.remove('on')); b.classList.add('on'); };
+  picksEl.appendChild(b);
+});
+
+$('add').onclick=()=>{
+  const name=$('iname').value.trim();
+  if(!name){ $('iname').focus(); return; }
+  const target=parseFloat($('itarget').value);
+  items.push({id:Date.now(), name, store:($('istore').value.trim()||'Anywhere'),
+    target:isNaN(target)?null:target, best:null, bestWhere:'', note:$('inote').value.trim(), done:false});
+  $('iname').value=''; $('itarget').value=''; $('istore').value=''; $('inote').value='';
+  pickedStore=''; document.querySelectorAll('.pick').forEach(x=>x.classList.remove('on'));
+  save(); render();
+};
+
+function render(){
+  // totals
+  const withTarget=items.filter(i=>i.target!=null);
+  const tTarget=withTarget.reduce((a,i)=>a+i.target,0);
+  const tBest=items.reduce((a,i)=>a+(i.best!=null?i.best:(i.target!=null?i.target:0)),0);
+  const tAtTarget=items.reduce((a,i)=>a+(i.target!=null?i.target:0),0);
+  const saveAmt=tAtTarget-tBest;
+  $('totals').innerHTML=
+    `<div>At your target prices:<br><b>${money(tAtTarget)}</b></div>`+
+    `<div>Best prices found so far:<br><b>${money(tBest)}</b></div>`+
+    `<div class="save">You would save:<br><b>${money(Math.max(0,saveAmt))}</b></div>`+
+    `<div>Items on sale (at or under target):<br><b>${items.filter(i=>i.best!=null&&i.target!=null&&i.best<=i.target).length} of ${items.length}</b></div>`;
+
+  // fewest trips — group by store
+  const byStore={};
+  items.filter(i=>!i.done).forEach(i=>{ (byStore[i.store]=byStore[i.store]||[]).push(i); });
+  const stops=Object.keys(byStore);
+  $('stops').innerHTML = stops.length===0
+    ? '<span class="muted">Add items and the stops appear here.</span>'
+    : `<b>${stops.length} stop${stops.length>1?'s':''}</b> for the unchecked list:<br>` +
+      stops.map(s=>`• <b>${s}</b> — ${byStore[s].length} item${byStore[s].length>1?'s':''} (${byStore[s].map(i=>i.name).join(', ')})`).join('<br>') +
+      `<br><span class="muted">Tip: items with no store set are grouped under "Anywhere" — give them a store to plan the trip.</span>`;
+
+  // list
+  const listEl=$('list');
+  listEl.innerHTML='';
+  if(items.length===0){ listEl.innerHTML='<p class="muted">Nothing here yet. Add your first item above — try the mac &amp; cheese run.</p>'; return; }
+  items.forEach(it=>{
+    const onSale = it.best!=null && it.target!=null && it.best<=it.target;
+    const div=document.createElement('div');
+    div.className='item'+(onSale?' sale':'')+(it.done?' done':'');
+    div.innerHTML=`
+      <input type="checkbox" ${it.done?'checked':''} aria-label="tick off ${it.name}">
+      <div class="body">
+        <div class="nm">${escapeHtml(it.name)}${onSale?'<span class="badge">SALE ✓</span>':''}</div>
+        <div class="meta">Store: ${escapeHtml(it.store)} · Target: ${it.target!=null?money(it.target):'—'} · Best found: ${it.best!=null?money(it.best)+(it.bestWhere?' at '+escapeHtml(it.bestWhere):''):'not yet'}</div>
+        ${it.note?`<div class="note-txt">${escapeHtml(it.note)}</div>`:''}
+      </div>
+      <div class="acts">
+        <button class="small" data-act="found">Found it cheaper?</button>
+        <button class="small ghost" data-act="del">Remove</button>
+      </div>`;
+    div.querySelector('input[type=checkbox]').onchange=e=>{ it.done=e.target.checked; save(); render(); };
+    div.querySelector('[data-act=found]').onclick=()=>{
+      const p=prompt('What price did you find for "'+it.name+'"? (numbers only, e.g. 2.49)');
+      if(p===null||p.trim()==='') return;
+      const v=parseFloat(p);
+      if(isNaN(v)||v<0){ alert('That did not look like a price. Try again with just the number.'); return; }
+      const w=prompt('Where did you find it? (store or site)');
+      it.best=v; it.bestWhere=(w||'').trim();
+      save(); render();
+    };
+    div.querySelector('[data-act=del]').onclick=()=>{
+      if(confirm('Remove "'+it.name+'" from the list?')){ items=items.filter(x=>x.id!==it.id); save(); render(); }
+    };
+    listEl.appendChild(div);
+  });
+}
+
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+$('clearDone').onclick=()=>{ items=items.filter(i=>!i.done); save(); render(); };
+
+function exportText(){
+  const lines=['SHOPPING LIST — Gridwalker mesh',''];
+  const byStore={};
+  items.forEach(i=>{ (byStore[i.store]=byStore[i.store]||[]).push(i); });
+  Object.keys(byStore).forEach(s=>{
+    lines.push(s.toUpperCase()+':');
+    byStore[s].forEach(i=>{
+      const mark=i.done?'[x]':'[ ]';
+      const tgt=i.target!=null?' target '+money(i.target):'';
+      const best=i.best!=null?' — best found '+money(i.best)+(i.bestWhere?' at '+i.bestWhere:''):'';
+      const sale=(i.best!=null&&i.target!=null&&i.best<=i.target)?'  ★ SALE':'';
+      lines.push(`  ${mark} ${i.name}${tgt}${best}${sale}${i.note?'  ('+i.note+')':''}`);
+    });
+    lines.push('');
+  });
+  const tAtTarget=items.reduce((a,i)=>a+(i.target!=null?i.target:0),0);
+  const tBest=items.reduce((a,i)=>a+(i.best!=null?i.best:(i.target!=null?i.target:0)),0);
+  lines.push('At target prices: '+money(tAtTarget));
+  lines.push('Best found so far: '+money(tBest));
+  lines.push('You would save: '+money(Math.max(0,tAtTarget-tBest)));
+  return lines.join('\n');
+}
+
+$('exportBtn').onclick=()=>{
+  $('exportText').value=exportText();
+  $('exportCard').style.display='block';
+  $('exportCard').scrollIntoView({behavior:'smooth'});
+};
+$('copyText').onclick=async()=>{
+  try{ await navigator.clipboard.writeText($('exportText').value); $('copyMsg').textContent='Copied.'; }
+  catch(e){ $('exportText').select(); document.execCommand('copy'); $('copyMsg').textContent='Copied.'; }
+};
+
+render();
+</script>
+</body>
+</html>
