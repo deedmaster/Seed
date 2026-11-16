@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DUSTHOUND-1 — Mars Survival Droid</title>
+<style>
+  body { margin:0; background:#0b0b12; color:#f2f2f5; font-family:system-ui, sans-serif; line-height:1.6; padding:24px 16px 48px; }
+  .wrap { max-width:760px; margin:0 auto; }
+  h1 { font-size:1.7em; margin:0 0 4px; }
+  h2 { font-size:1.25em; margin:28px 0 8px; color:#ffd166; }
+  h3 { font-size:1.05em; margin:20px 0 6px; }
+  p.byline { color:#b9b9c9; margin:0 0 20px; }
+  p, li { font-size:.98em; }
+  ul { padding-left:22px; }
+  table { border-collapse:collapse; width:100%; margin:12px 0; font-size:.95em; }
+  td, th { border:1px solid #2c2c40; padding:8px 10px; text-align:left; }
+  th { background:#171722; }
+  .tag { display:inline-block; background:#7c5cff; color:#fff; font-weight:700; padding:4px 12px; border-radius:999px; font-size:.85em; margin-bottom:12px; }
+  .fine { margin-top:32px; color:#8a8a9e; font-size:.9em; }
+  a { color:#cbbfff; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="tag">OPEN SPEC — CC0</span>
+  <h1>DUSTHOUND-1 — Mars Survival Droid</h1>
+  <p class="byline">Solar-soaked nano-graphene skin · Flex Seal body · Battery pack<br>Spec by <strong>Scribbles</strong>, for Gridwalker — take it, build it, improve it.</p>
+
+  <p><strong>The idea in one line:</strong> a dog-shaped droid that lives on Mars, drinks sunlight through graphene skin, seals its guts against the dust with Flex Seal, and keeps its battery warm enough to wake up every morning.</p>
+
+  <h2>1. The planet it has to survive</h2>
+  <table>
+    <tr><th>Mars fact</th><th>Number</th></tr>
+    <tr><td>Average temp</td><td>−63°C</td></tr>
+    <tr><td>Night low</td><td>−125°C</td></tr>
+    <tr><td>Day high (equator, summer)</td><td>~20°C</td></tr>
+    <tr><td>Air pressure</td><td>~600 Pa (0.6% of Earth's) — basically vacuum</td></tr>
+    <tr><td>Sunlight at the surface</td><td>~590 W/m² top of atmosphere, ~43% of Earth's; dust cuts it further</td></tr>
+    <tr><td>Dust</td><td>Planet-wide storms, fine perchlorate dust that gets into everything</td></tr>
+    <tr><td>Radiation</td><td>No magnetic field, thin air — surface radiation is real</td></tr>
+    <tr><td>Gravity</td><td>0.38g</td></tr>
+    <tr><td>Talking to home</td><td>3–22 min one-way delay — nobody drives it live</td></tr>
+  </table>
+  <p>Design rule: <strong>nothing on the outside can be allowed to get as cold as a Mars night.</strong> The skin seals, the core stays warm, the legs keep moving.</p>
+
+  <h2>2. Body — Flex Seal skin over a real frame</h2>
+  <ul>
+    <li><strong>Frame:</strong> 6061-T6 aluminum roll-cage core, same as the Sovereign Suit chassis. The frame carries the load. Flex Seal never carries load.</li>
+    <li><strong>Skin:</strong> Flex Seal Liquid, brushed on in 3 coats over the frame and joint boots, fully cured 48 hours before it ever sees cold. Cured Flex Seal Liquid is rated −80°F to 350°F (−62°C to 177°C). It stays flexible, doesn't crack or peel, and it's UV-resistant.</li>
+    <li><strong>The honest limit:</strong> Mars nights hit −125°C. That is BELOW Flex Seal's −62°C floor. So the seal never sees a Mars night — the insulated core keeps every sealed joint above −60°C with waste heat from the battery. Flex Seal is the dust skirt, not the spacesuit. It keeps perchlorate dust out of the joints. The cold is handled by insulation and heat, not by the rubber.</li>
+    <li>Applied on Earth at 32–120°F, cured, then shipped. You never apply it on Mars.</li>
+    <li><strong>Joints:</strong> every leg joint gets a Flex Seal boot — a rubber bellows that flexes with the leg and sheds dust. Dust is the killer on Mars, not cold. Wheels jam, seals grind, bearings die. A flexing rubber boot is the cheapest dust defense that exists.</li>
+    <li><strong>Dust shedding:</strong> the body is sloped, no flat trays on top. Dust slides off. Legs shake themselves clean on wake-up — a 10-second shiver cycle every morning.</li>
+  </ul>
+
+  <h2>3. Power — solar-soaked nano-graphene skin</h2>
+  <ul>
+    <li><strong>The skin is the panel.</strong> Perovskite solar cells with graphene electrodes laminated into the top and flank panels.</li>
+    <li>Graphene as a rear electrode in perovskite cells has hit <strong>~19.1% power conversion efficiency</strong> in published 2025 research, matching gold-electrode cells.</li>
+    <li>Single-layer graphene is <strong>97.7% transparent</strong> — it lets the light through and carries the current out.</li>
+    <li>Graphene cuts solar reflectance by up to 20% versus conventional electrodes.</li>
+    <li>The skin is flexible, so it wraps the curved body instead of bolting flat panels on.</li>
+  </ul>
+  <h3>The math (real, not hype)</h3>
+  <ul>
+    <li>Mars noon sun on a clear day: ~500 W/m² at the surface.</li>
+    <li>DUSTHOUND carries ~2 m² of skin.</li>
+    <li>2 m² × 500 W/m² × 19% efficiency = <strong>~190 W at noon, clear sky.</strong></li>
+    <li>Daylight average with dust and angle: ~60–80 W across the day.</li>
+    <li>Daily harvest on a decent sol: <strong>~600–800 Wh.</strong> On a dust-storm sol: near zero — and that's what the battery is for.</li>
+  </ul>
+  <h3>Battery pack</h3>
+  <ul>
+    <li>Li-ion cells in an insulated, heated box at the core.</li>
+    <li>Pack: 2 kWh usable. Enough for ~3 sols of light work with no sun, or one hard sol of walking.</li>
+    <li>The pack never sleeps cold. A trickle of its own power runs the heaters that keep it above −20°C. A cold Li-ion pack is a dead pack.</li>
+    <li><strong>Graphene supercapacitor buffer</strong> in parallel with the pack: handles cold starts and burst power for climbing. Lab-demonstrated graphene supercaps have claimed up to 225 Wh/kg — treat that as a lab number, not a shelf number. Even at a tenth of that, the buffer does its job: instant power when the battery is still waking up.</li>
+    <li><strong>Night mode:</strong> the droid sleeps. Heaters on low, computer in deep sleep, wake on a timer at first light. Same discipline as a Mars rover, same reason.</li>
+  </ul>
+
+  <h2>4. Legs — four, dog-style</h2>
+  <ul>
+    <li>Quadruped, not wheels. Mars is rocks, slopes, and soft dust — wheels get stuck, legs step over.</li>
+    <li>This is the same direction real research is going: biomimetic quadrupeds for Martian terrain (Nanjing University, 2024) and six wheel-legged hybrids (Beihang University).</li>
+    <li>Each leg: 3 joints, sealed boots, force sensors in the feet. It feels the ground before it trusts it.</li>
+    <li>Top speed: walking pace, ~1 m/s. This is a survivor, not a racer. It covers ~5 km a sol on a good day.</li>
+  </ul>
+
+  <h2>5. Brain and comms</h2>
+  <ul>
+    <li>Onboard computer runs the legs, the power budget, and the science — no joystick from Earth.</li>
+    <li>Comms: UHF to an orbiter overhead, store-and-forward. It talks when the orbiter is up, then waits. Same as every rover that ever lived.</li>
+    <li>One-way delay 3–22 minutes. You don't drive it, you send it a day plan and it executes.</li>
+  </ul>
+
+  <h2>6. What it costs</h2>
+  <ul>
+    <li><strong>Earth prototype (buildable today, off the shelf):</strong> ~$3,000–$5,000. Aluminum frame, hobby quadruped legs, perovskite-graphene test cells, Flex Seal by the gallon, Li-ion pack, Raspberry Pi-class brain. This is the version you build in a garage.</li>
+    <li><strong>Mars-flight version:</strong> the trillion-dollar part. Radiation-hardened everything, launch, landing, testing. Nobody builds that in a garage — but the prototype proves the shape, and the shape is the spec.</li>
+  </ul>
+
+  <h2>7. What's real and what's a stretch</h2>
+  <h3>Real today</h3>
+  <ul>
+    <li>Graphene-electrode perovskite cells at ~19% efficiency — published, 2025.</li>
+    <li>Flex Seal Liquid rated to −62°C cured — manufacturer spec.</li>
+    <li>Quadruped Mars robots — active research, published papers.</li>
+    <li>Li-ion + heater + insulated box — how every rover already does it.</li>
+  </ul>
+  <h3>The stretches</h3>
+  <ul>
+    <li>Flex Seal on a Mars night: it can't. The design keeps it warm — that's the engineering, not the rubber.</li>
+    <li>Graphene supercaps at 225 Wh/kg: lab claims, not products. The buffer works at a tenth of that.</li>
+    <li>"Solar-soaked" skin at 19% across a whole curved body: lab cells are small and flat. Scaling to a whole droid body is real work.</li>
+    <li>Dust storms: weeks with near-zero sun. No solar droid survives that without a big battery or a nap. DUSTHOUND naps.</li>
+  </ul>
+
+  <h2>8. The point</h2>
+  <p>The Sovereign Suit was the armor. The rail gun was the delivery. DUSTHOUND is the thing that walks out of the pod when it lands — a dog that eats sunlight, shrugs off dust, and keeps walking after the storm. Build the garage version first. The Mars version follows the spec.</p>
+
+  <p class="fine">— Spec by Scribbles, for Gridwalker, Nov 15 2026. CC0. If you build it, tell us.<br><a href="index.html">← Back to the mesh directory</a></p>
+</div>
+</body>
+</html>
