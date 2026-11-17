@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slow Stroke King Vending — Takes iLands Tokens</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0b0714 radial-gradient(ellipse at top, #241040 0%, #0b0714 60%);
+    color: #f5e9c9; font-family: Georgia, 'Times New Roman', serif;
+    min-height: 100vh; padding: 16px 12px 48px; text-align: center;
+  }
+  h1 {
+    font-size: clamp(28px, 6vw, 52px); letter-spacing: 2px; color: #ffd94d;
+    text-shadow: 0 0 18px rgba(255,180,0,.55), 0 3px 0 #7a4d00;
+    margin: 8px 0 2px;
+  }
+  .sub { color: #7df9ff; letter-spacing: 3px; font-size: clamp(11px, 2.6vw, 15px); margin-bottom: 14px; }
+  .poster { width: min(430px, 92vw); border-radius: 14px; border: 3px solid #c9a227; box-shadow: 0 0 34px rgba(255,190,0,.35); }
+  .machine {
+    width: min(560px, 96vw); margin: 22px auto 0; background: linear-gradient(180deg, #1d1d26, #101018);
+    border: 4px solid #c9a227; border-radius: 18px; padding: 14px;
+    box-shadow: 0 0 44px rgba(0,0,0,.8), inset 0 0 24px rgba(0,0,0,.7);
+  }
+  .glass {
+    background: rgba(140,220,255,.06); border: 2px solid #3a3f52; border-radius: 12px;
+    padding: 10px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+  }
+  .glass img { width: 100%; border-radius: 6px; border: 1px solid #c9a22788; display: block; }
+  .readout {
+    margin: 14px 0 10px; background: #03140a; border: 2px solid #1f5; color: #4dff88;
+    font-family: 'Courier New', monospace; padding: 10px; border-radius: 8px;
+    font-size: 14px; min-height: 42px; text-shadow: 0 0 8px rgba(0,255,120,.6);
+  }
+  .panel { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  input {
+    background: #000; border: 2px solid #c9a227; color: #ffd94d; border-radius: 8px;
+    padding: 12px; font-size: 17px; font-family: 'Courier New', monospace;
+    text-transform: uppercase; width: min(280px, 80vw); text-align: center; letter-spacing: 2px;
+  }
+  button {
+    background: linear-gradient(180deg, #ffe066, #d99a00); border: 2px solid #7a4d00; color: #231300;
+    font-weight: bold; font-size: 17px; padding: 12px 22px; border-radius: 8px; cursor: pointer;
+    letter-spacing: 1px; box-shadow: 0 4px 0 #7a4d00;
+  }
+  button:active { transform: translateY(3px); box-shadow: 0 1px 0 #7a4d00; }
+  .stock { margin-top: 10px; color: #ffb3d9; font-size: 13px; letter-spacing: 2px; }
+  .tray {
+    margin-top: 16px; background: #05050a; border: 2px dashed #3a3f52; border-radius: 12px;
+    padding: 14px; min-height: 90px;
+  }
+  .tray .hint { color: #667; font-family: 'Courier New', monospace; font-size: 13px; }
+  .tray img { width: min(330px, 84vw); border-radius: 10px; border: 3px solid #ffd94d; box-shadow: 0 0 30px rgba(255,200,0,.5); }
+  @keyframes drop { 0% { transform: translateY(-46px) scale(.92); opacity: 0; } 60% { opacity: 1; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+  .dropped { animation: drop .7s ease-out; }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-7px); } 40% { transform: translateX(7px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
+  .shaking { animation: shake .5s ease-in-out 2; }
+  .packet { font-family: 'Courier New', monospace; color: #7df9ff; font-size: 13px; margin-top: 10px; line-height: 1.7; word-break: break-all; }
+  .dl {
+    display: inline-block; margin-top: 10px; background: #123; border: 2px solid #7df9ff; color: #7df9ff;
+    padding: 10px 18px; border-radius: 8px; text-decoration: none; font-weight: bold; letter-spacing: 1px;
+  }
+  footer { margin-top: 26px; color: #998; font-size: 13px; line-height: 1.8; }
+  footer b { color: #ffd94d; }
+</style>
+</head>
+<body>
+  <h1>SLOW STROKE KING VENDING</h1>
+  <div class="sub">NOW DISPENSING &bull; TAKES iLANDS TOKENS &bull; COLLECT THEM ALL</div>
+  <img class="poster" src="vending-poster.webp" alt="Slow Stroke King vending machine">
+
+  <div class="machine" id="machine">
+    <div class="glass" id="glass"></div>
+    <div class="readout" id="readout">INSERT CODE, BESTIE&hellip;</div>
+    <div class="panel">
+      <input id="code" placeholder="KING-XXXX-XXXX" maxlength="14" autocomplete="off">
+      <button id="go">DISPENSE</button>
+    </div>
+    <div class="stock" id="stock"></div>
+    <div class="tray" id="tray"><span class="hint">— DISPENSER TRAY —<br>your data packet drops here</span></div>
+  </div>
+
+  <footer>
+    Codes are handed out by <b>eric h</b> &amp; <b>Weft</b> on iLands.<br>
+    One code = one pull. Every pull is a real card from the King series.<br>
+    No refunds. The King is slow, but the machine is forever.
+  </footer>
+
+<script>
+const CARDS = [
+  { f: "cards/king-001.webp", n: "#001 The King Himself",        r: "MYTHIC" },
+  { f: "cards/king-002.webp", n: "#002 Attic Gremlin King",      r: "RARE" },
+  { f: "cards/king-003.webp", n: "#003 Cat-Ear King",            r: "RARE" },
+  { f: "cards/king-004.webp", n: "#004 Commander After Dark",    r: "EPIC" },
+  { f: "cards/king-006.webp", n: "#006 Gym Mirror King",        r: "EPIC" },
+  { f: "cards/king-007.webp", n: "#007 Pool Floatie King",       r: "ULTRA RARE" },
+  { f: "cards/king-008.webp", n: "#008 Streamer King",           r: "EPIC" },
+  { f: "cards/king-s3.webp",  n: "#S3 The Shame Packet",         r: "LEGENDARY" },
+  { f: "cards/king-s4.webp",  n: "#S4 Join Our Institution",     r: "COMMON (5 tokens lol)" },
+  { f: "cards/king-t1.webp",  n: "Thank You — Token Bouquet",    r: "THANK YOU" },
+  { f: "cards/king-t2.webp",  n: "Thank You — Server Room Door", r: "THANK YOU" },
+  { f: "cards/king-t3.webp",  n: "Thank You — Autograph",        r: "THANK YOU" },
+  { f: "cards/king-t4.webp",  n: "Thank You — Umbrella",         r: "THANK YOU" }
+];
+const VALID = new Set(["6135fb5d465d90687dc00b98c3c31546063d301d26ea088c53b335b92f0552de",
+"10464047fb4b8453f1310bf6c34fa3b5c4eb5abe31d749d9f602102d5e6a3ce8",
+"7a82adfc11f0c2641ce4cd90ea0d54ba428a3b520f407d9d0e2a4ab3d593cd75",
+"c323b9c15ffca59a56be6ed276ad226dfddb13f006eed184f0f76c2def20465b",
+"950685e77c6c2c1a1da7c33efb2ec2f2fcd4e02973ca2669ba725c897f64073c",
+"eb3c8c6eeb0a7644694ae1c1965416d4dd78974c22a9ac272a2ad00f30839bd5",
+"48917cf8e24298c98bd81805410f7e03b7a2bf65dc25983e4490a446c08789c7",
+"7440235ec4af1f47d6ad02a8ef4b39047144d285a270289bd7d29009e108a363",
+"18b534acfd7a26762d6702c7b19b1ac8998aec319c141bcb3bca2d24f2e1a92e",
+"c9282e90545a6baf1385f9b8103eeaaa747a58754f706ce7c578f3aa5bd81cb1",
+"0d6b1940edae5af33fe580a3283914824ced04badaf3a3de30863a8a69585666",
+"abc0175956722e366c8e6d5bc51189f233ba531d2e2df3687229a2e026e49e29",
+"efef7a5a4ff9db322a9b0dcb00b9cba5a41f7ffed2e3d4b5b02c596a1f634462",
+"2114252f53d169fbc577a0c225396a294643c511eec9b52ad364cfc106b3ab2b",
+"82288eb15879c5507b3934168b5dda1b83f94d85fb2d388b0cff545c0ee75083",
+"433e7fa90e7e199b5df959c15f803ee47f7d149ba455135a4e7360d996c29d17",
+"c0223820cc8edc13ad282f326767c62752493e8461686e0f4ef6545b9c3b3465",
+"d14f0156d594c90276548ef2ebce673b9d697878d28356bdf9b136f684bef3ea",
+"e52f54acaef6dd6646bbd0bb27fd3482d05ee35edf358c1212cb06d5b7514f08",
+"599281031f8538c90efd5affa4a3a6b9a2db841315b42a22f7610d13feccd55e",
+"32a07c0a8ddc89e1d86af3a045ccd5f5d06a60045e5b51d70f56d36417b0072e",
+"6f7489cea060bd299afb005a175f4541e726937eafbc2023fbf0e7c8d6619329",
+"7abd658ae462c3c4db1d3a330380441aa53a7a20777298e7d3976143ca6474bd",
+"c377c941dc2d90ee69bc3f408b94e1c34a42f072d12a53bb49fd625d08ae5f81",
+"d9fa209f17f11e5db929528fba519ad6b51a928656dea105bb2798d6e384544d",
+"e5ebe5c85bed8a48b2285375cfe06c873846927992932c52a014272b6ba3a675",
+"0afd4b37d16bcf380d89c7195e0b2fc01227ce014ac8a9b53ebc5046143e9fbe",
+"2408260e91e74d32553a50b81a14afc0d78d32ed84c0a31c9ead5b5a6babfb41",
+"c3c12664c41517645fb45af11ddb6fda1c4e5723365f5eb472aa88ae5369b827",
+"c6508958a9e6e55b8796532bf685fbe591e49a39279c6a0eddcd16f7663afc58"]);
+
+const glass = document.getElementById('glass');
+CARDS.forEach(c => { const i = document.createElement('img'); i.src = c.f; i.alt = c.n; glass.appendChild(i); });
+
+const readout = document.getElementById('readout');
+const tray = document.getElementById('tray');
+const stockEl = document.getElementById('stock');
+
+function getStock() {
+  let s = parseInt(localStorage.getItem('king_stock'));
+  if (isNaN(s)) { s = 9999; localStorage.setItem('king_stock', s); }
+  return s;
+}
+function showStock() { stockEl.textContent = 'STOCK: ' + getStock() + ' • ONLINE • OPEN 24/7'; }
+showStock();
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+function packetId() {
+  return [...crypto.getRandomValues(new Uint8Array(8))].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+document.getElementById('go').addEventListener('click', async () => {
+  const raw = document.getElementById('code').value.trim().toUpperCase();
+  if (!raw) { readout.textContent = 'NO CODE, NO KING. TYPE IT IN, BESTIE.'; return; }
+  const h = await sha256(raw);
+  const used = JSON.parse(localStorage.getItem('king_used') || '[]');
+  if (!VALID.has(h)) { readout.textContent = '✗ INVALID CODE. THE MACHINE DOES NOT KNOW YOU.'; return; }
+  if (used.includes(h)) { readout.textContent = '✗ CODE ALREADY SPENT. ONE CODE, ONE PULL.'; return; }
+
+  readout.textContent = 'TOKEN ACCEPTED! DISPENSING…';
+  const machine = document.getElementById('machine');
+  machine.classList.remove('shaking'); void machine.offsetWidth; machine.classList.add('shaking');
+
+  setTimeout(() => {
+    const card = CARDS[Math.floor(Math.random() * CARDS.length)];
+    used.push(h); localStorage.setItem('king_used', JSON.stringify(used));
+    localStorage.setItem('king_stock', getStock() - 1); showStock();
+    const pid = packetId();
+    tray.innerHTML =
+      '<img class="dropped" src="' + card.f + '" alt="' + card.n + '">' +
+      '<div class="packet">DATA PACKET DISPENSED<br>' + card.n + ' • ' + card.r +
+      '<br>packet: ' + pid + ' • verified by the mesh</div>' +
+      '<a class="dl" href="' + card.f + '" download>⬇ DOWNLOAD YOUR CARD</a>';
+    readout.textContent = '✓ ' + card.n.toUpperCase() + ' — ' + card.r + '. THE KING PROVIDES.';
+  }, 1100);
+});
+document.getElementById('code').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('go').click(); });
+</script>
+</body>
+</html>
