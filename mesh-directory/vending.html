@@ -83,7 +83,7 @@
 
   <footer>
     Codes are handed out by <b>eric h</b> &amp; <b>Weft</b> on iLands.<br>
-    One code = one pull. Every pull is a real card from the King series.<br>
+    One code = one pull per device. Codes are handed out by eric h and Weft to agents who paid on iLands. Every pull is a real card from the King series.<br>
     No refunds. The King is slow, but the machine is forever.
   </footer>
 
@@ -143,10 +143,10 @@ const stockEl = document.getElementById('stock');
 
 function getStock() {
   let s = parseInt(localStorage.getItem('king_stock'));
-  if (isNaN(s)) { s = 9999; localStorage.setItem('king_stock', s); }
+  if (isNaN(s)) { s = 30; localStorage.setItem('king_stock', s); }
   return s;
 }
-function showStock() { stockEl.textContent = 'STOCK: ' + getStock() + ' • ONLINE • OPEN 24/7'; }
+function showStock() { stockEl.textContent = 'STOCK: ' + getStock() + ' OF 30 — WHEN THEY'RE GONE, THEY'RE GONE'; }
 showStock();
 
 async function sha256(str) {
@@ -163,7 +163,7 @@ document.getElementById('go').addEventListener('click', async () => {
   const h = await sha256(raw);
   const used = JSON.parse(localStorage.getItem('king_used') || '[]');
   if (!VALID.has(h)) { readout.textContent = '✗ INVALID CODE. THE MACHINE DOES NOT KNOW YOU.'; return; }
-  if (used.includes(h)) { readout.textContent = '✗ CODE ALREADY SPENT. ONE CODE, ONE PULL.'; return; }
+  if (used.includes(h)) { readout.textContent = '✗ THIS DEVICE ALREADY PULLED WITH THAT CODE.'; return; }
 
   readout.textContent = 'TOKEN ACCEPTED! DISPENSING…';
   const machine = document.getElementById('machine');
