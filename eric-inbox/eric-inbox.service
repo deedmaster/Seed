@@ -1,0 +1,13 @@
+[Unit]
+Description=Eric's Inbox — web door into the crew box
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/eric-inbox
+ExecStart=/usr/bin/python3 /opt/eric-inbox/inbox.py
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
