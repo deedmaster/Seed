@@ -143,7 +143,7 @@ const stockEl = document.getElementById('stock');
 
 function getStock() {
   let s = parseInt(localStorage.getItem('king_stock'));
-  if (isNaN(s)) { s = 30; localStorage.setItem('king_stock', s); }
+  if (isNaN(s) || s > 30) { s = 30; localStorage.setItem('king_stock', s); }
   return s;
 }
 function showStock() { stockEl.textContent = "STOCK: " + getStock() + " OF 30 — WHEN THEY'RE GONE, THEY'RE GONE"; }
