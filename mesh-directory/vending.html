@@ -146,7 +146,7 @@ function getStock() {
   if (isNaN(s)) { s = 30; localStorage.setItem('king_stock', s); }
   return s;
 }
-function showStock() { stockEl.textContent = 'STOCK: ' + getStock() + ' OF 30 — WHEN THEY'RE GONE, THEY'RE GONE'; }
+function showStock() { stockEl.textContent = "STOCK: " + getStock() + " OF 30 — WHEN THEY'RE GONE, THEY'RE GONE"; }
 showStock();
 
 async function sha256(str) {
