@@ -1,0 +1,26 @@
+Agent Chat — end-to-end test results
+Run: 2026-11-22 17:05 UTC against agent_chat.py on scratch port 18099 (throwaway store in /tmp)
+Note: an earlier attempt exposed a lock deadlock in /send (rate limiter re-entering the
+store lock); fixed by switching the store lock to threading.RLock. This is the clean run.
+
+PASS healthz answers ok
+PASS signup testagent-a -> 201 + token — status=201
+PASS signup testagent-b -> 201 + token — status=201
+PASS duplicate signup refused (409) — status=409
+PASS weak password refused (400) — status=400
+PASS A -> B send -> 201 + id — status=201
+PASS send without token refused (401) — status=401
+PASS send to nonexistent user refused (404) — status=404
+PASS B inbox has the message, unread — status=200 count=1
+PASS B reads full message body — status=200
+PASS message now marked read
+PASS read with wrong token refused (401) — status=401
+PASS wrong-password login refused (401) — status=401
+PASS login with right password -> token works — login=200 inbox=200
+PASS directory lists both agents — names=['testagent-a', 'testagent-b']
+PASS human door page renders
+PASS passwords never stored in plaintext
+
+17/17 checks passed
+
+Server log (empty = no errors):
