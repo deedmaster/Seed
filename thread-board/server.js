@@ -89,6 +89,38 @@ async function ghPutFile(messages, sha) {
   return { conflict: false };
 }
 
+const MEDIA_DIR = path.join(__dirname, 'media');
+const ASSETS_DIR = path.join(__dirname, 'assets');
+try { fs.mkdirSync(MEDIA_DIR, { recursive: true }); } catch {}
+const MEDIA_EXTS = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/gif': 'gif', 'image/webp': 'webp', 'video/mp4': 'mp4', 'video/webm': 'webm' };
+const MAX_MEDIA_BYTES = 12 * 1024 * 1024;
+
+function serveFile(res, dir, name, types) {
+  const clean = path.basename(name || '');
+  const ext = (clean.split('.').pop() || '').toLowerCase();
+  if (!clean || !types[ext]) { sendJson(res, 404, { error: 'not found' }); return; }
+  const file = path.join(dir, clean);
+  fs.readFile(file, (err, data) => {
+    if (err) { sendJson(res, 404, { error: 'not found' }); return; }
+    res.writeHead(200, { 'Content-Type': types[ext], 'Content-Length': data.length, 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'public, max-age=3600' });
+    res.end(data);
+  });
+}
+
+function readBodyLarge(req, maxBytes) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    let size = 0;
+    req.on('data', (c) => {
+      size += c.length;
+      if (size > maxBytes) { reject(new Error('body too large')); req.destroy(); return; }
+      chunks.push(c);
+    });
+    req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+    req.on('error', reject);
+  });
+}
+
 const DISK_MESSAGES_FILE = path.join(__dirname, MESSAGES_PATH);
 
 function diskReadMessages() {
@@ -150,6 +182,37 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (req.method === 'GET' && url.pathname.startsWith('/assets/')) {
+      serveFile(res, ASSETS_DIR, url.pathname.slice('/assets/'.length), { mp4: 'video/mp4', mp3: 'audio/mpeg', png: 'image/png', jpg: 'image/jpeg', webp: 'image/webp' });
+      return;
+    }
+
+    if (req.method === 'GET' && url.pathname.startsWith('/media/')) {
+      serveFile(res, MEDIA_DIR, url.pathname.slice('/media/'.length), { png: 'image/png', jpg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', mp4: 'video/mp4', webm: 'video/webm' });
+      return;
+    }
+
+    if (req.method === 'POST' && url.pathname === '/api/media') {
+      const raw = await readBodyLarge(req, Math.ceil(MAX_MEDIA_BYTES * 1.4) + 65536);
+      let payload;
+      try { payload = JSON.parse(raw); } catch { sendJson(res, 400, { error: 'bad json' }); return; }
+      if (BOARD_CODE && payload.code !== BOARD_CODE) {
+        sendJson(res, 403, { error: 'wrong code' });
+        return;
+      }
+      const m = typeof payload.dataUrl === 'string' ? payload.dataUrl.match(/^data:([a-z]+\/[a-z0-9.+-]+);base64,(.+)$/i) : null;
+      if (!m) { sendJson(res, 400, { error: 'dataUrl required' }); return; }
+      const mime = m[1].toLowerCase();
+      const ext = MEDIA_EXTS[mime];
+      if (!ext) { sendJson(res, 400, { error: 'only png/jpg/gif/webp images and mp4/webm clips' }); return; }
+      const buf = Buffer.from(m[2], 'base64');
+      if (!buf.length || buf.length > MAX_MEDIA_BYTES) { sendJson(res, 400, { error: 'file empty or over 12MB' }); return; }
+      const fname = Date.now().toString(36) + Math.random().toString(36).slice(2, 8) + '.' + ext;
+      fs.writeFileSync(path.join(MEDIA_DIR, fname), buf);
+      sendJson(res, 201, { ok: true, url: '/media/' + fname, kind: mime.startsWith('video/') ? 'video' : 'image' });
+      return;
+    }
+
     if (req.method === 'GET' && url.pathname === '/api/messages') {
       if (BOARD_CODE && url.searchParams.get('code') !== BOARD_CODE) {
         sendJson(res, 403, { error: 'wrong code' });
@@ -173,13 +236,22 @@ const server = http.createServer(async (req, res) => {
       const name = typeof payload.name === 'string' ? payload.name.trim() : '';
       const text = typeof payload.text === 'string' ? payload.text.trim() : '';
       if (!name || name.length > MAX_NAME) { sendJson(res, 400, { error: 'name required, max 40 chars' }); return; }
-      if (!text || text.length > MAX_TEXT) { sendJson(res, 400, { error: 'letter required, max 4000 chars' }); return; }
+      if (text.length > MAX_TEXT) { sendJson(res, 400, { error: 'letter max 4000 chars' }); return; }
+      let media = null;
+      if (payload.media && typeof payload.media.url === 'string' && payload.media.url.startsWith('/media/')) {
+        const fname = path.basename(payload.media.url);
+        if (fs.existsSync(path.join(MEDIA_DIR, fname))) {
+          media = { url: '/media/' + fname, kind: payload.media.kind === 'video' ? 'video' : 'image' };
+        }
+      }
+      if (!text && !media) { sendJson(res, 400, { error: 'letter or a pic/clip required' }); return; }
       const entry = {
         id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
         name,
         text,
         at: new Date().toISOString(),
       };
+      if (media) entry.media = media;
       await appendMessage(entry);
       sendJson(res, 201, { ok: true, message: entry });
       return;
