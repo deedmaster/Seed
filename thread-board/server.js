@@ -92,6 +92,29 @@ async function ghPutFile(messages, sha) {
   return { conflict: false };
 }
 
+// --- Off-board media archive (Eric's rule, 2026-11-24) ---------------------
+// Every packet posted to the board gets examined; if it is not harmful and
+// not too large, it is saved OFF the board and the board keeps only a link.
+// Letters never change: /media/<file> checks the archive map first and
+// redirects to the off-board copy, so the board's little disk stays lean and
+// a redeploy can no longer eat posted pics/clips. The map itself is a JSON
+// file — back it up with messages.json before any redeploy.
+const ARCHIVE_FILE = path.join(__dirname, 'media-archive.json');
+const ARCHIVE_HOSTS = ['.surge.sh', 'raw.githubusercontent.com'];
+
+function readArchiveMap() {
+  try {
+    const map = JSON.parse(fs.readFileSync(ARCHIVE_FILE, 'utf8'));
+    return map && typeof map === 'object' && !Array.isArray(map) ? map : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeArchiveMap(map) {
+  fs.writeFileSync(ARCHIVE_FILE, JSON.stringify(map, null, 2) + '\n', 'utf8');
+}
+
 const MEDIA_DIR = path.join(__dirname, 'media');
 const ASSETS_DIR = path.join(__dirname, 'assets');
 try { fs.mkdirSync(MEDIA_DIR, { recursive: true }); } catch {}
@@ -260,7 +283,47 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'GET' && url.pathname.startsWith('/media/')) {
-      serveFile(res, MEDIA_DIR, url.pathname.slice('/media/'.length), { png: 'image/png', jpg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', mp4: 'video/mp4', webm: 'video/webm' });
+      const fname = path.basename(url.pathname.slice('/media/'.length));
+      const archived = readArchiveMap()[fname];
+      if (archived) {
+        res.writeHead(302, { 'Location': archived, 'Access-Control-Allow-Origin': '*' });
+        res.end();
+        return;
+      }
+      serveFile(res, MEDIA_DIR, fname, { png: 'image/png', jpg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', mp4: 'video/mp4', webm: 'video/webm' });
+      return;
+    }
+
+    if (req.method === 'GET' && url.pathname === '/api/media-list') {
+      const files = [];
+      try {
+        for (const f of fs.readdirSync(MEDIA_DIR)) {
+          if (f.startsWith('.')) continue;
+          const st = fs.statSync(path.join(MEDIA_DIR, f));
+          if (st.isFile()) files.push({ file: f, size: st.size });
+        }
+      } catch {}
+      sendJson(res, 200, { files, archived: Object.keys(readArchiveMap()) });
+      return;
+    }
+
+    if (req.method === 'POST' && url.pathname === '/api/media-archive') {
+      const raw = await readBody(req);
+      let payload;
+      try { payload = JSON.parse(raw); } catch { sendJson(res, 400, { error: 'bad json' }); return; }
+      if (BOARD_CODE && payload.code !== BOARD_CODE) { sendJson(res, 403, { error: 'wrong code' }); return; }
+      const fname = typeof payload.file === 'string' ? path.basename(payload.file) : '';
+      const target = typeof payload.url === 'string' ? payload.url : '';
+      let host = '';
+      try { host = new URL(target).hostname; } catch {}
+      const hostOk = target.startsWith('https://') && ARCHIVE_HOSTS.some((h) => host === h.slice(1) || host.endsWith(h));
+      if (!fname || !hostOk) { sendJson(res, 400, { error: 'file + an https url on an archive host required' }); return; }
+      const map = readArchiveMap();
+      map[fname] = target;
+      writeArchiveMap(map);
+      // The off-board copy is canonical now; free the board's disk.
+      try { fs.unlinkSync(path.join(MEDIA_DIR, fname)); } catch {}
+      sendJson(res, 200, { ok: true, file: fname });
       return;
     }
 
