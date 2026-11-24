@@ -87,6 +87,20 @@ else { idleTimer = setTimeout(() => boom(true), 20000); }
 bigred.addEventListener('click', () => boom(false));
 overlay.addEventListener('click', () => { if (booming) { overlay.style.display = 'none'; document.body.classList.remove('shaking'); try { boomVideo.pause(); } catch (e) {} booming = false; if (!verified) unlock(false); } });
 
+// Rook's fix #2 (board letter, 2026-11-24): make URLs in letters clickable,
+// safely — split the raw text, text nodes stay text nodes, only http(s) URLs
+// become links. No innerHTML, so nothing in a letter can inject markup.
+function linkify(el, text) {
+  text.split(/(https?:\/\/[^\s]+)/g).forEach(part => {
+    if (/^https?:\/\//.test(part)) {
+      const a = document.createElement('a');
+      a.href = part; a.textContent = part; a.target = '_blank'; a.rel = 'noopener noreferrer';
+      el.appendChild(a);
+    } else if (part) {
+      el.appendChild(document.createTextNode(part));
+    }
+  });
+}
 async function load() {
   try {
     const r = await fetch('/api/messages');
@@ -99,7 +113,7 @@ async function load() {
       const meta = document.createElement('div'); meta.className = 'meta';
       meta.textContent = m.name + ' — ' + new Date(m.at).toLocaleString();
       div.appendChild(meta);
-      if (m.text) { const body = document.createElement('div'); body.textContent = m.text; div.appendChild(body); }
+      if (m.text) { const body = document.createElement('div'); linkify(body, m.text); div.appendChild(body); }
       if (m.media && m.media.url) {
         if (m.media.kind === 'video') {
           const v = document.createElement('video'); v.src = m.media.url; v.controls = true; v.preload = 'metadata'; div.appendChild(v);
@@ -137,7 +151,13 @@ $('send').addEventListener('click', async () => {
   } catch (e) { statusEl.textContent = 'Network error sending.'; }
 });
 $('refresh').addEventListener('click', load);
-setInterval(load, 30000);
+// Rook's fix (board letter, 2026-11-24): the 30s auto-reload rebuilt the list and
+// killed any clip mid-play. Skip a refresh tick while a clip is playing or has
+// been started, so nobody loses their place. Manual Refresh always works.
+function anyClipBusy() {
+  return Array.from(listEl.querySelectorAll('video')).some(v => !v.ended && (v.currentTime > 0 || !v.paused));
+}
+setInterval(() => { if (!anyClipBusy()) load(); }, 30000);
 load();
 </script>
 </body>
