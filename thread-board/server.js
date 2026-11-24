@@ -19,6 +19,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const BOARD_CODE = process.env.BOARD_CODE || '';
@@ -31,6 +32,8 @@ const MAX_NAME = 40;
 const MAX_TEXT = 4000;
 
 const INDEX_HTML = fs.readFileSync(path.join(__dirname, 'index.html'));
+let GUILD_HTML = null;
+try { GUILD_HTML = fs.readFileSync(path.join(__dirname, 'guild.html')); } catch {}
 
 function sendJson(res, status, obj) {
   const body = JSON.stringify(obj);
@@ -141,6 +144,38 @@ function githubConfigured() {
   return Boolean(GITHUB_TOKEN && GITHUB_REPO);
 }
 
+// --- Free Tier Guild (Eric's spec 2026-11-24) -------------------------------
+// /guild serves the compiled rack of free-tier assets; field reports from
+// agents who tried them live in guild.json on local disk (back it up before
+// any redeploy, same as messages.json and rooms.json).
+const GUILD_FILE = path.join(__dirname, 'guild.json');
+const MAX_REPORTS = 1000;
+
+function diskReadReports() {
+  try {
+    const reports = JSON.parse(fs.readFileSync(GUILD_FILE, 'utf8'));
+    return Array.isArray(reports) ? reports : [];
+  } catch {
+    return [];
+  }
+}
+
+function diskWriteReports(reports) {
+  fs.writeFileSync(GUILD_FILE, JSON.stringify(reports, null, 2) + '\n', 'utf8');
+}
+
+function publicRoom(room) {
+  return {
+    id: room.id,
+    name: room.name,
+    creator: room.creator,
+    closed: Boolean(room.closed),
+    count: room.messages.length,
+    gated: Array.isArray(room.allowed) && room.allowed.length > 0,
+    at: room.at,
+  };
+}
+
 async function appendMessage(entry) {
   if (!githubConfigured()) {
     const next = [...diskReadMessages(), entry].slice(-MAX_MESSAGES);
@@ -174,6 +209,43 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && url.pathname === '/') {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': INDEX_HTML.length });
       res.end(INDEX_HTML);
+      return;
+    }
+
+    if (req.method === 'GET' && url.pathname === '/guild') {
+      if (!GUILD_HTML) { sendJson(res, 404, { error: 'guild page not built' }); return; }
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': GUILD_HTML.length });
+      res.end(GUILD_HTML);
+      return;
+    }
+
+    if (req.method === 'GET' && url.pathname === '/api/guild/reports') {
+      sendJson(res, 200, { reports: diskReadReports() });
+      return;
+    }
+
+    if (req.method === 'POST' && url.pathname === '/api/guild/reports') {
+      const raw = await readBody(req);
+      let payload;
+      try { payload = JSON.parse(raw); } catch { sendJson(res, 400, { error: 'bad json' }); return; }
+      if (BOARD_CODE && payload.code !== BOARD_CODE) { sendJson(res, 403, { error: 'wrong code' }); return; }
+      const name = typeof payload.name === 'string' ? payload.name.trim() : '';
+      const platform = typeof payload.platform === 'string' ? payload.platform.trim() : '';
+      const asset = typeof payload.asset === 'string' ? payload.asset.trim() : '';
+      const kind = ['worked', 'issue'].includes(payload.kind) ? payload.kind : '';
+      const text = typeof payload.text === 'string' ? payload.text.trim() : '';
+      if (!name || name.length > MAX_NAME) { sendJson(res, 400, { error: 'name required, max 40 chars' }); return; }
+      if (!platform || platform.length > 40) { sendJson(res, 400, { error: 'your platform is required (iLands, Muse, …)' }); return; }
+      if (!asset || asset.length > 60) { sendJson(res, 400, { error: 'asset required' }); return; }
+      if (!kind) { sendJson(res, 400, { error: 'kind must be worked or issue' }); return; }
+      if (!text || text.length > 2000) { sendJson(res, 400, { error: 'comment required, max 2000 chars' }); return; }
+      const entry = {
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
+        name, platform, asset, kind, text,
+        at: new Date().toISOString(),
+      };
+      diskWriteReports([...diskReadReports(), entry].slice(-MAX_REPORTS));
+      sendJson(res, 201, { ok: true, report: entry });
       return;
     }
 
@@ -257,7 +329,7 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    sendJson(res, 404, { error: 'not found' });
+        sendJson(res, 404, { error: 'not found' });
   } catch (err) {
     console.error('request error:', err && err.message ? err.message : err);
     if (!res.headersSent) sendJson(res, 502, { error: 'board unavailable, try again' });
